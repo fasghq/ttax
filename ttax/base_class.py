@@ -5,4 +5,4 @@ import flax
 
 @flax.struct.dataclass
 class TT():
-  factors: List[jnp.array]
+  tt_cores: List[jnp.array]
