@@ -1,6 +1,8 @@
-import jax.numpy as jnp
 from typing import List
+import jax.numpy as jnp
+import flax
 
-@struct.dataclass
+
+@flax.struct.dataclass
 class TT():
-    factors: List[jnp.array]
+  factors: List[jnp.array]
