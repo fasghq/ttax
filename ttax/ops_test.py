@@ -9,7 +9,7 @@ import jax.test_util as jtu
 from jax.config import config
 
 from base_class import TT
-# import random
+import random_
 import ops
 
 config.parse_flags_with_absl()
