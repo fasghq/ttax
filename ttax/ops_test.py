@@ -38,6 +38,16 @@ class TTTensorTest(jtu.JaxTestCase):
     res_desired = ops.full(tt_a) * ops.full(tt_b)
     self.assertAllClose(res_actual, res_desired)
 
+  def testFlatInner(self):
+    # Multiply two TT-tensors.
+    rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
+    dtype = jnp.float32
+    tt_a = random_.tensor(rng1, (1, 2, 3, 4), tt_rank=2, dtype=dtype)
+    tt_b = random_.tensor(rng2, (1, 2, 3, 4), tt_rank=[1, 1, 4, 3, 1], dtype=dtype)
+    res_actual = ops.flat_inner(tt_a, tt_b)
+    res_desired = jnp.sum(ops.full(tt_a) * ops.full(tt_b))
+    self.assertAllClose(res_actual, res_desired)
+
 
 if __name__ == '__main__':
   absltest.main(testLoader=jtu.JaxTestLoader())
