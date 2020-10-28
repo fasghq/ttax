@@ -1,5 +1,6 @@
 import jax.numpy as jnp
 from base_class import TT
+from compile import compile
 
 
 def full(tt: TT) -> jnp.array:
@@ -17,3 +18,8 @@ def full(tt: TT) -> jnp.array:
 
   shape = [c.shape[1] for c in tt.tt_cores]
   return jnp.reshape(res, shape)
+
+
+@compile
+def multiply(a, b):
+  return {'args': [['a', 'i', 'b'], ['c', 'i', 'd']], 'res': ['ac', 'i', 'bd']}
