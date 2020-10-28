@@ -19,7 +19,11 @@ import jax.numpy as jnp
 from base_class import TT
 
 
-
+class WrappedTT:
+  def __init__(self, tt: TT, inputs=None, tt_einsum=None):
+    self.tt = tt
+    self.inputs = inputs
+    self.tt_einsum = tt_einsum
 
 def tt_to_vanilla_einsum(tt_einsum):
   """Converting from tt_einsum to a regular einsum."""
@@ -52,12 +56,13 @@ def compile(func):
 
 def compile_independent(tt_einsum):
   einsum = tt_to_vanilla_einsum(tt_einsum)
-  def new_func(a, b):
+  def new_func(*args):
     # TODO: do in parallel w.r.t. cores.
     # TODO: use optimal einsum.
-    res_cores = [oe.contract(einsum, ca, cb, backend='jax') for ca, cb in zip(a.tt_cores, b.tt_cores)]
-    new_res_cores = []
-    for core in res_cores:
+    res_cores = []
+    for i in range(len(args[0].tt_cores)):
+      curr_input_cores = [tt.tt_cores[i] for tt in args]
+      core = oe.contract(einsum, *curr_input_cores, backend='jax')
       shape = core.shape
       new_shape = []
       num_left_rank_dims = len(tt_einsum['res'][0])
@@ -65,10 +70,11 @@ def compile_independent(tt_einsum):
       split_points = (num_left_rank_dims, num_left_rank_dims + num_tensor_dims)
       new_shape = np.split(shape, split_points)
       new_shape = [np.prod(s) for s in new_shape]
-      new_res_cores.append(core.reshape(new_shape))
-    res = TT(new_res_cores)
+      res_cores.append(core.reshape(new_shape))
+    res = TT(res_cores)
     return res
   return new_func
+
 
 def compile_running(tt_einsum):
   einsum = tt_to_vanilla_einsum(tt_einsum)
@@ -83,3 +89,13 @@ def compile_running(tt_einsum):
       res_list.append(res)
     return res_list
   return new_func
+
+
+def fuse(func):
+  def _func(*args):
+    wrapped_args = [WrappedTT(arg) for arg in args]
+    res = func(*wrapped_args)
+    if isinstance(res, WrappedTT):
+      res = res.tt
+    return res
+  return _func
