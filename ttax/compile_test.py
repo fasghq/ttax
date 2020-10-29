@@ -32,24 +32,27 @@ def benchmark(func, *args):
 
 class TTTensorTest(jtu.JaxTestCase):
 
-  def testFuse(self):
+  @parameterized.named_parameters(
+      ('_a*b*c', 'a*b*c'),
+      ('<a*b, c>', '<a*b, c>')
+  )
+  def testFuse(self, op_type):
     np.random.seed(1)
     rng1, rng2, rng3 = jax.random.split(jax.random.PRNGKey(0), 3)
     dtype = jnp.float32
     tt_a = random_.tensor(rng1, (1, 2, 3, 4), tt_rank=2, dtype=dtype)
     tt_b = random_.tensor(rng2, (1, 2, 3, 4), tt_rank=[1, 1, 4, 3, 1], dtype=dtype)
     tt_c = random_.tensor(rng3, (1, 2, 3, 4), tt_rank=3, dtype=dtype)
-    for op in ['a*b*c', '<a*b, c>']:
-      if op == 'a*b*c':
-        func = lambda a, b, c: ops.multiply(ops.multiply(a, b), c)
-        fused_func = compile.fuse(func)
-        res_actual = ops.full(func(tt_a, tt_b, tt_c))
-        res_desired = ops.full(fused_func(tt_a, tt_b, tt_c))
-      elif op == '<a*b, c>':
-        func = lambda a, b, c: ops.flat_inner(ops.multiply(a, b), c)
-        fused_func = compile.fuse(func)
-        res_actual = func(tt_a, tt_b, tt_c)
-        res_desired = fused_func(tt_a, tt_b, tt_c)
+    if op_type == 'a*b*c':
+      func = lambda a, b, c: ops.multiply(ops.multiply(a, b), c)
+      fused_func = compile.fuse(func)
+      res_actual = ops.full(func(tt_a, tt_b, tt_c))
+      res_desired = ops.full(fused_func(tt_a, tt_b, tt_c))
+    elif op_type == '<a*b, c>':
+      func = lambda a, b, c: ops.flat_inner(ops.multiply(a, b), c)
+      fused_func = compile.fuse(func)
+      res_actual = func(tt_a, tt_b, tt_c)
+      res_desired = fused_func(tt_a, tt_b, tt_c)
 
       self.assertAllClose(res_actual, res_desired)
 
