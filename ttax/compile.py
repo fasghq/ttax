@@ -1,4 +1,4 @@
-"""Utils for compiling functiones defined as einsum strings.
+"""Utils for compiling functions defined as einsum strings.
 
 Here we use the notion of *tt_einsum*, which is similar to einsum strings, but
 with more structure.
@@ -20,7 +20,15 @@ from base_class import TT
 from string import ascii_lowercase
 import copy
 
+
 class WrappedTT:
+  """A class which wrapps TT needed for fusion to work.
+
+  Base TT class can only have jnp.array objects so that you can pass it into
+  jitted function. But, for fusing to functions together we need to track which
+  operation created a TT object, so while fusing ops we wrap TT objects with
+  this class, to track that.
+  """
   def __init__(self, tt: TT, inputs=None, tt_einsum=None):
     self.tt = tt
     self.inputs = inputs
@@ -29,6 +37,7 @@ class WrappedTT:
   @property
   def tt_cores(self):
     return self.tt.tt_cores
+
 
 def tt_to_vanilla_einsum(tt_einsum):
   """Converting from tt_einsum to a regular einsum."""
@@ -111,6 +120,30 @@ def compile_running(tt_einsum):
 
 
 def fuse(func):
+  """Fuse a composite function to make it faster.
+
+  Example:
+    def f(a, b, c):
+      # Computes
+      # <a * b, c> =
+      #   sum_{i_1, ..., i_d} a[i_1, ..., i_d] b[i_1, ..., i_d] c[i_1, ..., i_d]
+      return ttax.flat_inner(a * b, c)
+
+  Function `f` can be suboptimal for some inputs. For example, if `a` and `b`
+  are of large TT-rank, and `c` is of low TT-rank, implementing the same
+  operation as
+    ttax.flat_inner(a * c, b)
+  would be much more efficient.
+
+  `fuse` automates such optimizations. You can build an optimal implementation
+  of this function for any inputs by doing
+    faster_f = ttax.fuse(f)
+  Finally, don't forget that in Jax to get good speed you need to wrap you
+  highest level function in jit, e.g.
+    faster_f = jax.jit(faster_f)
+  Now, by using `faster_f(a, b, c)` instead of `f(a, b, c)` you can achieve
+  a much faster running time for any inputs.
+  """
   def _func(*args):
     wrapped_args = [WrappedTT(arg) for arg in args]
     res = func(*wrapped_args)
@@ -118,6 +151,7 @@ def fuse(func):
       res = res.tt
     return res
   return _func
+
 
 def _fuse(tt_einsum, args):
   tt_einsum = copy.deepcopy(tt_einsum)
