@@ -22,10 +22,10 @@ import copy
 
 
 class WrappedTT:
-  """A class which wrapps TT needed for fusion to work.
+  """A class which wraps TT, which is needed for fusion to work.
 
   Base TT class can only have jnp.array objects so that you can pass it into
-  jitted function. But, for fusing to functions together we need to track which
+  jitted function. But, for fusing two functions together we need to track which
   operation created a TT object, so while fusing ops we wrap TT objects with
   this class, to track that.
   """
