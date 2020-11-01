@@ -5,3 +5,5 @@ from ttax.ops import multiply
 from ttax.ops import flat_inner
 
 from ttax.compile import fuse
+
+from ttax import random_ as random
