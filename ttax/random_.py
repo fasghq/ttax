@@ -1,7 +1,8 @@
 import numpy as np
 import jax
 import jax.numpy as jnp
-from base_class import TT
+
+from ttax.base_class import TT
 
 
 def tensor(rng, shape, tt_rank=2, dtype=jnp.float32):

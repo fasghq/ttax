@@ -5,12 +5,11 @@ import numpy as np
 import jax
 import jax.numpy as jnp
 import jax.test_util as jtu
-
 from jax.config import config
 
-from base_class import TT
-import random_
-import ops
+from ttax.base_class import TT
+from ttax import random_
+from ttax import ops
 
 config.parse_flags_with_absl()
 

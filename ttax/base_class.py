@@ -4,5 +4,5 @@ import flax
 
 
 @flax.struct.dataclass
-class TT():
+class TT:
   tt_cores: List[jnp.array]
