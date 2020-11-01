@@ -34,9 +34,8 @@ def flat_inner(a, b):
   def main_loop(a, b):
     return {
         'type': 'running',
-        'init': lambda dtype: jnp.ones((1, 1), dtype=dtype),
         'args': [['a', 'i', 'b'], ['c', 'i', 'd'], ['a', 'c']],
         'res': ['b', 'd']
     }
-  res = main_loop(a, b)[-1][0, 0]
+  res = jnp.squeeze(main_loop(a, b)[-1])
   return res
