@@ -1,6 +1,7 @@
 import jax.numpy as jnp
-from base_class import TT
-from compile import compile
+
+from ttax.base_class import TT
+from ttax.compile import compile
 
 
 def full(tt: TT) -> jnp.array:

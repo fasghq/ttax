@@ -6,12 +6,11 @@ import numpy as np
 import jax
 import jax.numpy as jnp
 import jax.test_util as jtu
-
 from jax.config import config
 
-import random_
-import ops
-import compile
+from ttax import random_
+from ttax import ops
+from ttax import compile
 
 config.parse_flags_with_absl()
 

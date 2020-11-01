@@ -16,9 +16,10 @@ tt_einsum_cores.
 import opt_einsum as oe
 import numpy as np
 import jax.numpy as jnp
-from base_class import TT
 from string import ascii_lowercase
 import copy
+
+from ttax.base_class import TT
 
 
 class WrappedTT:
