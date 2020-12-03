@@ -23,8 +23,11 @@ def benchmark(func, *args):
 
   num_repeats = 100
   s = time.time()
+  outs = []
   for _ in range(num_repeats):
-    func_jit(*args)
+    outs.append(func_jit(*args))
+  for o in outs:
+    o.block_until_ready()
   e = time.time()
   return (e - s) / num_repeats
 
