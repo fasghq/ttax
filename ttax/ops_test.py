@@ -33,9 +33,12 @@ class TTTensorTest(jtu.JaxTestCase):
     dtype = jnp.float32
     tt_a = random_.tensor(rng1, (1, 2, 3, 4), tt_rank=2, dtype=dtype)
     tt_b = random_.tensor(rng2, (1, 2, 3, 4), tt_rank=[1, 1, 4, 3, 1], dtype=dtype)
-    res_actual = ops.full(ops.multiply(tt_a, tt_b))
+
+    res_actual1 = ops.full(ops.multiply(tt_a, tt_b))
+    res_actual2 = ops.full(tt_a * tt_b)
     res_desired = ops.full(tt_a) * ops.full(tt_b)
-    self.assertAllClose(res_actual, res_desired)
+    self.assertAllClose(res_actual1, res_desired)
+    self.assertAllClose(res_actual2, res_desired)
 
   def testFlatInner(self):
     # Multiply two TT-tensors.
