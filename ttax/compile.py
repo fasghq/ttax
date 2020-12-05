@@ -39,13 +39,29 @@ class WrappedTT:
   def tt_cores(self):
     return self.tt.tt_cores
 
+  @property
+  def batch_shape(self):
+    return self.tt.batch_shape
+
+  @property
+  def shape(self):
+    return self.tt.shape
+
+  @property
+  def axis_dim(self):
+    return self.tt.axis_dim
+
+  @property
+  def num_batch_dims(self):
+    return self.tt.num_batch_dims
+
 
 def tt_to_vanilla_einsum(tt_einsum):
   """Converting from tt_einsum to a regular einsum."""
   args = []
   for arg in tt_einsum['args']:
     args.append(''.join(arg))
-  return ','.join(args) + '->' + ''.join(tt_einsum['res'])
+  return ','.join(['...' + a for a in args]) + '->...' + ''.join(tt_einsum['res'])
 
 
 def compile(func):
@@ -78,18 +94,22 @@ def compile_independent(tt_einsum):
     else:
       tt_einsum_ = tt_einsum
     einsum = tt_to_vanilla_einsum(tt_einsum_)
+    num_batch_dims = args[0].num_batch_dims
+    # TODO: support broadcasting.
+    res_batch_shape = list(args[0].batch_shape)
     # TODO: do in parallel w.r.t. cores.
     # TODO: use optimal einsum.
     res_cores = []
     for i in range(len(args[0].tt_cores)):
       curr_input_cores = [tt.tt_cores[i] for tt in args]
       core = oe.contract(einsum, *curr_input_cores, backend='jax')
-      shape = core.shape
+      shape = core.shape[num_batch_dims:]
       num_left_rank_dims = len(tt_einsum_['res'][0])
       num_tensor_dims = len(tt_einsum_['res'][1])
       split_points = (num_left_rank_dims, num_left_rank_dims + num_tensor_dims)
       new_shape = np.split(shape, split_points)
       new_shape = [np.prod(s) for s in new_shape]
+      new_shape = res_batch_shape + new_shape
       res_cores.append(core.reshape(new_shape))
     res = TT(res_cores)
     if is_fusing:

@@ -1,9 +1,28 @@
+import functools
+import jax
 import jax.numpy as jnp
 
 from ttax.base_class import TT
 from ttax.compile import compile
 
 
+def tt_vmap(func):
+  """Decorator which makes a function support batch TT-inputs."""
+  @functools.wraps(func)
+  def vectorized_func(*args, **kwargs):
+    tt_arg = args[0]  # TODO: what if only kwargs are present?
+    if tt_arg.num_batch_dims == 0:
+      return func(*args, **kwargs)
+    else:
+      # Vmap everything num_batch_dims times.
+      vmapped = func
+      for _ in range(tt_arg.num_batch_dims):
+        vmapped = jax.vmap(vmapped)
+      return vmapped(*args, **kwargs)
+  return vectorized_func
+
+
+@tt_vmap
 def full(tt: TT) -> jnp.array:
   """Converts TT into a regular tensor.
   """
@@ -17,8 +36,7 @@ def full(tt: TT) -> jnp.array:
     res = jnp.einsum('pa,aib->pib', res, curr_core)
     res = res.reshape(-1, right_rank)
 
-  shape = [c.shape[1] for c in tt.tt_cores]
-  return jnp.reshape(res, shape)
+  return jnp.reshape(res, tt.shape)
 
 
 @compile

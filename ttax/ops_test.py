@@ -27,12 +27,39 @@ class TTTensorTest(jtu.JaxTestCase):
       actual = ops.full(tf_tens)
       self.assertAllClose(desired, actual)
 
+  def testFullTensor2dBatch(self):
+    np.random.seed(1)
+    for rank in [1, 2]:
+      a = np.random.rand(3, 10, rank)
+      b = np.random.rand(3, rank, 9)
+      tt_cores = (a.reshape(3, 1, 10, rank), b.reshape(3, rank, 9, 1))
+      desired = np.einsum('bij,bjk->bik', a, b)
+      tf_tens = TT(tt_cores)
+      actual = ops.full(tf_tens)
+      self.assertAllClose(desired, actual)
+
   def testMultiply(self):
     # Multiply two TT-tensors.
     rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
     dtype = jnp.float32
     tt_a = random_.tensor(rng1, (1, 2, 3, 4), tt_rank=2, dtype=dtype)
-    tt_b = random_.tensor(rng2, (1, 2, 3, 4), tt_rank=[1, 1, 4, 3, 1], dtype=dtype)
+    tt_b = random_.tensor(rng2, (1, 2, 3, 4), tt_rank=[1, 1, 4, 3, 1],
+                          dtype=dtype)
+
+    res_actual1 = ops.full(ops.multiply(tt_a, tt_b))
+    res_actual2 = ops.full(tt_a * tt_b)
+    res_desired = ops.full(tt_a) * ops.full(tt_b)
+    self.assertAllClose(res_actual1, res_desired)
+    self.assertAllClose(res_actual2, res_desired)
+
+  def testMultiplyBatch(self):
+    # Multiply two batches of TT-tensors.
+    rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
+    dtype = jnp.float32
+    tt_a = random_.tensor(rng1, (1, 2, 3, 4), tt_rank=2, batch_shape=(3,),
+                          dtype=dtype)
+    tt_b = random_.tensor(rng2, (1, 2, 3, 4), tt_rank=[1, 1, 4, 3, 1],
+                          batch_shape=(3,), dtype=dtype)
 
     res_actual1 = ops.full(ops.multiply(tt_a, tt_b))
     res_actual2 = ops.full(tt_a * tt_b)
