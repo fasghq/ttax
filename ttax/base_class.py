@@ -19,7 +19,6 @@ class TT:
   @property
   def shape(self):
     no_batch_shape = [c.shape[self.axis_dim] for c in self.tt_cores]
-    print(self.batch_shape, no_batch_shape)
     return tuple(list(self.batch_shape) + no_batch_shape)
 
   @property
