@@ -13,7 +13,7 @@ TT_einsum consists of list of input and output cores defined like with
 tt_einsum_cores.
 """
 
-from typing import Callable, List, Union
+from typing import Callable, List, Union, Dict
 import opt_einsum as oe
 import numpy as np
 import jax.numpy as jnp
@@ -75,7 +75,8 @@ class TTEinsum:
       inputs.append(''.join(inp))
     return ','.join(['...' + a for a in inputs]) + '->...' + ''.join(self.output)
 
-  def apply_mapping(self, mapping):
+  def apply_mapping(self, mapping: Dict[str, str]):
+    """Rename letters according to the given mapping."""
     new_inputs = []
     for inp in self.inputs:
       new_inputs.append(apply_single_mapping(inp, mapping))
@@ -84,14 +85,35 @@ class TTEinsum:
                     how_to_apply=self.how_to_apply)
 
   def change_input(self, input_idx: int, new_inputs: List):
-    """Change argument arg_input into new_inputs."""
+    """Change argument input_idx into new_inputs.
+
+    E.g.
+      tt_einsum = TTEinsum(inputs=[['a', 'i', 'b'], ['c', 'i', 'd']],
+                           output=['ac', 'i', 'bd'],
+                           how_to_apply='independent')
+      tt_einsum.change_input(0, [['e', 'i', 'f'], ['g', 'i', 'h']])
+      print(tt_einsum.to_vanilla_einsum())  # 'eif,gih,cid->acibd'.
+    """
     prefix = self.inputs[:input_idx]
     postfix = self.inputs[input_idx + 1:]
     new_inputs = prefix + new_inputs + postfix
     return TTEinsum(new_inputs, self.output, self.how_to_apply)
 
+  def to_distinct_letters(self, distinct_from):
+    """Rename letters to make them distinct from letters used in distinct_from."""
+    distinct_from_einsum = distinct_from.to_vanilla_einsum()
+    # TODO: add upper case
+    vacant_letters = [l for l in ascii_lowercase if l not in distinct_from_einsum]
+    einsum = self.to_vanilla_einsum()
+    curr_unique_letters = [l for l in einsum if l in ascii_lowercase]
+    mapping = {}
+    for i, l in enumerate(curr_unique_letters):
+      mapping[l] = vacant_letters[i]
+    return self.apply_mapping(mapping)
+
 
 def apply_single_mapping(strings, mapping):
+  """Apply letter mapping to a list of strings."""
   new_strings = []
   for str in strings:
     curr_str = ''
@@ -99,20 +121,6 @@ def apply_single_mapping(strings, mapping):
       curr_str += mapping.get(l, l)
     new_strings.append(curr_str)
   return new_strings
-
-
-def to_distinct_letters(tt_einsum: TTEinsum,
-                        distinct_from: TTEinsum) -> TTEinsum:
-  """Makes tt_einsum letters distinct from distinct_from letters."""
-  distinct_from_einsum = distinct_from.to_vanilla_einsum()
-  # TODO: add upper case
-  vacant_letters = [l for l in ascii_lowercase if l not in distinct_from_einsum]
-  einsum = tt_einsum.to_vanilla_einsum()
-  curr_unique_letters = [l for l in einsum if l in ascii_lowercase]
-  mapping = {}
-  for i, l in enumerate(curr_unique_letters):
-    mapping[l] = vacant_letters[i]
-  return tt_einsum.apply_mapping(mapping)
 
 
 def _fuse_tt_einsums(tt_einsum: TTEinsum,
@@ -151,7 +159,7 @@ def _fuse_tt_einsums(tt_einsum: TTEinsum,
     if isinstance(arg, WrappedTT) and arg.tt_einsum is not None:
       assert arg.tt_einsum.how_to_apply == 'independent'
       # Step 1.
-      new_arg_tt_einsum = to_distinct_letters(arg.tt_einsum, curr_tt_einsum)
+      new_arg_tt_einsum = arg.tt_einsum.to_distinct_letters(curr_tt_einsum)
       # Step 2.
       unchanged_inp = copy.deepcopy(curr_tt_einsum.inputs[curr_tt_einsum_inp_idx])
       curr_tt_einsum = curr_tt_einsum.change_input(curr_tt_einsum_inp_idx,
