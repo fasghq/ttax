@@ -3,7 +3,7 @@ import jax
 import jax.numpy as jnp
 
 from ttax.base_class import TT
-from ttax.compile import compile
+from ttax.compile import TTEinsum, to_function
 
 
 def tt_vmap(func):
@@ -39,22 +39,22 @@ def full(tt: TT) -> jnp.array:
   return jnp.reshape(res, tt.shape)
 
 
-@compile
 def multiply(a, b):
-  return {
-      'type': 'independent',
-      'args': [['a', 'i', 'b'], ['c', 'i', 'd']],
-      'res': ['ac', 'i', 'bd']
-  }
+  tt_einsum = TTEinsum(
+      inputs=[['a', 'i', 'b'], ['c', 'i', 'd']],
+      output=['ac', 'i', 'bd'],
+      how_to_apply='independent'
+  )
+  func = to_function(tt_einsum)
+  return func(a, b)
 
 
 def flat_inner(a, b):
-  @compile
-  def main_loop(a, b):
-    return {
-        'type': 'running',
-        'args': [['a', 'i', 'b'], ['c', 'i', 'd'], ['a', 'c']],
-        'res': ['b', 'd']
-    }
-  res = jnp.squeeze(main_loop(a, b)[-1])
+  tt_einsum = TTEinsum(
+      inputs=[['a', 'i', 'b'], ['c', 'i', 'd'], ['a', 'c']],
+      output=['b', 'd'],
+      how_to_apply='cumulative'
+  )
+  func = to_function(tt_einsum)
+  res = jnp.squeeze(func(a, b)[-1])
   return res
