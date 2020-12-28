@@ -11,5 +11,6 @@ setup(name='ttax',
       install_requires=[
           'numpy',
           'jax',
+          'flax'
       ],
       zip_safe=False)
