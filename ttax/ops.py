@@ -40,21 +40,21 @@ def full(tt: TT) -> jnp.array:
 
 
 def multiply(a, b):
-  tt_einsum = TTEinsum({
-      'type': 'independent',
-      'args': [['a', 'i', 'b'], ['c', 'i', 'd']],
-      'res': ['ac', 'i', 'bd']
-  })
+  tt_einsum = TTEinsum(
+      inputs=[['a', 'i', 'b'], ['c', 'i', 'd']],
+      output=['ac', 'i', 'bd'],
+      how_to_apply='independent'
+  )
   func = to_function(tt_einsum)
   return func(a, b)
 
 
 def flat_inner(a, b):
-  tt_einsum = TTEinsum({
-      'type': 'running',
-      'args': [['a', 'i', 'b'], ['c', 'i', 'd'], ['a', 'c']],
-      'res': ['b', 'd']
-  })
+  tt_einsum = TTEinsum(
+      inputs=[['a', 'i', 'b'], ['c', 'i', 'd'], ['a', 'c']],
+      output=['b', 'd'],
+      how_to_apply='cumulative'
+  )
   func = to_function(tt_einsum)
   res = jnp.squeeze(func(a, b)[-1])
   return res
