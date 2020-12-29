@@ -14,13 +14,20 @@ tt_einsum_cores.
 """
 
 from typing import Callable, List, Union, Dict
+import tree
 import opt_einsum as oe
 import numpy as np
 import jax.numpy as jnp
 from string import ascii_lowercase
 import copy
 
+from ttax import ops
 from ttax.base_class import TT
+from ttax.base_class import TTMatrix
+
+# You can use this in TT-einsum expressions. It will be 'i' when working with
+# TT-tensors and 'ij' when working with TT-matrices.
+I_OR_IJ = 'I_OR_IJ'
 
 
 class WrappedTT:
@@ -36,6 +43,12 @@ class WrappedTT:
     self.tt = tt
     self.tt_inputs = tt_inputs
     self.tt_einsum = tt_einsum
+
+  def __mul__(self, other):
+    return ops.multiply(self, other)
+
+  def __matmul__(self, other):
+    return ops.matmul(self, other)
 
   @property
   def tt_cores(self):
@@ -56,6 +69,10 @@ class WrappedTT:
   @property
   def num_batch_dims(self):
     return self.tt.num_batch_dims
+
+  @property
+  def is_tt_matrix(self):
+    return self.tt.is_tt_matrix
 
 
 class TTEinsum:
@@ -110,6 +127,17 @@ class TTEinsum:
     for i, l in enumerate(curr_unique_letters):
       mapping[l] = vacant_letters[i]
     return self.apply_mapping(mapping)
+
+  def resolve_i_or_ij(self, is_tt_matrix):
+    """Return a version of TTEinsum with I_OR_IJ changed to either 'i' or 'ij'.
+    """
+    def resolve(el):
+      if el == I_OR_IJ:
+        return 'ij' if is_tt_matrix else 'i'
+      return el
+    new_inputs = tree.map_structure(resolve, self.inputs)
+    new_output = tree.map_structure(resolve, self.output)
+    return TTEinsum(new_inputs, new_output, self.how_to_apply)
 
 
 def apply_single_mapping(strings, mapping):
@@ -207,12 +235,13 @@ def to_function(tt_einsum: TTEinsum) -> Callable:
 
 def compile_independent(tt_einsum: TTEinsum) -> Callable:
   def new_func(*args):
+    are_tt_matrix_inputs = args[0].is_tt_matrix
+    tt_einsum_ = tt_einsum.resolve_i_or_ij(are_tt_matrix_inputs)
+
     is_fusing = any([isinstance(tt, WrappedTT) for tt in args])
     if is_fusing:
       # Have to use a different name to make upper level tt_einsum visible.
-      tt_einsum_, args = _fuse_tt_einsums(tt_einsum, args)
-    else:
-      tt_einsum_ = tt_einsum
+      tt_einsum_, args = _fuse_tt_einsums(tt_einsum_, args)
     einsum = tt_einsum_.to_vanilla_einsum()
     num_batch_dims = args[0].num_batch_dims
     # TODO: support broadcasting.
@@ -228,12 +257,19 @@ def compile_independent(tt_einsum: TTEinsum) -> Callable:
       num_tensor_dims = len(tt_einsum_.output[1])
       split_points = (num_left_rank_dims, num_left_rank_dims + num_tensor_dims)
       new_shape = np.split(shape, split_points)
-      new_shape = [np.prod(s) for s in new_shape]
+      left_rank = np.prod(new_shape[0])
+      right_rank = np.prod(new_shape[2])
+      new_shape = [left_rank] + new_shape[1].tolist() + [right_rank]
       new_shape = res_batch_shape + new_shape
       res_cores.append(core.reshape(new_shape))
-    res = TT(res_cores)
+
+    if are_tt_matrix_inputs:
+      res = TTMatrix(res_cores)
+    else:
+      res = TT(res_cores)
+
     if is_fusing:
-      res = WrappedTT(res, args, tt_einsum)
+      res = WrappedTT(res, args, tt_einsum_)
     return res
 
   return new_func
@@ -241,12 +277,13 @@ def compile_independent(tt_einsum: TTEinsum) -> Callable:
 
 def compile_cumulative(tt_einsum: TTEinsum) -> Callable:
   def new_func(*args):
+    are_tt_matrix_inputs = args[0].is_tt_matrix
+    tt_einsum_ = tt_einsum.resolve_i_or_ij(are_tt_matrix_inputs)
+
     is_fusing = any([isinstance(tt, WrappedTT) for tt in args])
     if is_fusing:
       # Have to use a different name to make upper level tt_einsum visible.
-      tt_einsum_, args = _fuse_tt_einsums(tt_einsum, args)
-    else:
-      tt_einsum_ = tt_einsum
+      tt_einsum_, args = _fuse_tt_einsums(tt_einsum_, args)
     einsum = tt_einsum_.to_vanilla_einsum()
 
     res = jnp.ones([1] * len(args), args[0].tt_cores[0].dtype)
@@ -285,7 +322,7 @@ def fuse(func):
   highest level function in jit, e.g.
     faster_f = jax.jit(faster_f)
   Now, by using `faster_f(a, b, c)` instead of `f(a, b, c)` you can achieve
-  a much faster сumulative time for any inputs.
+  a much faster cumulative time for any inputs.
   """
 
   def _func(*args):

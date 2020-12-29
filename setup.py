@@ -10,6 +10,7 @@ setup(name='ttax',
       packages=['ttax'],
       install_requires=[
           'numpy',
+          'dm-tree',
           'jax',
           'flax'
       ],
