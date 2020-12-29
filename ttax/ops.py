@@ -5,7 +5,7 @@ import jax.numpy as jnp
 from ttax.base_class import TTBase
 from ttax.base_class import TT
 from ttax.base_class import TTMatrix
-from ttax.compile import TTEinsum, to_function
+from ttax.compile import TTEinsum, to_function, I_OR_IJ
 
 
 def tt_vmap(func):
@@ -80,8 +80,8 @@ def full(tt: TTBase) -> jnp.array:
 
 def multiply(a, b):
   tt_einsum = TTEinsum(
-      inputs=[['a', 'i', 'b'], ['c', 'i', 'd']],
-      output=['ac', 'i', 'bd'],
+      inputs=[['a', I_OR_IJ, 'b'], ['c', I_OR_IJ, 'd']],
+      output=['ac', I_OR_IJ, 'bd'],
       how_to_apply='independent'
   )
   func = to_function(tt_einsum)
@@ -90,7 +90,7 @@ def multiply(a, b):
 
 def flat_inner(a, b):
   tt_einsum = TTEinsum(
-      inputs=[['a', 'i', 'b'], ['c', 'i', 'd'], ['a', 'c']],
+      inputs=[['a', I_OR_IJ, 'b'], ['c', I_OR_IJ, 'd'], ['a', 'c']],
       output=['b', 'd'],
       how_to_apply='cumulative'
   )
