@@ -21,6 +21,7 @@ from string import ascii_lowercase
 import copy
 
 from ttax.base_class import TT
+from ttax.base_class import TTMatrix
 
 
 class WrappedTT:
@@ -56,6 +57,10 @@ class WrappedTT:
   @property
   def num_batch_dims(self):
     return self.tt.num_batch_dims
+
+  @property
+  def is_tt_matrix(self):
+    return self.tt.is_tt_matrix
 
 
 class TTEinsum:
@@ -228,10 +233,17 @@ def compile_independent(tt_einsum: TTEinsum) -> Callable:
       num_tensor_dims = len(tt_einsum_.output[1])
       split_points = (num_left_rank_dims, num_left_rank_dims + num_tensor_dims)
       new_shape = np.split(shape, split_points)
-      new_shape = [np.prod(s) for s in new_shape]
+      left_rank = np.prod(new_shape[0])
+      right_rank = np.prod(new_shape[2])
+      new_shape = [left_rank] + new_shape[1].tolist() + [right_rank]
       new_shape = res_batch_shape + new_shape
       res_cores.append(core.reshape(new_shape))
-    res = TT(res_cores)
+
+    if args[0].is_tt_matrix:
+      res = TTMatrix(res_cores)
+    else:
+      res = TT(res_cores)
+
     if is_fusing:
       res = WrappedTT(res, args, tt_einsum)
     return res
@@ -285,7 +297,7 @@ def fuse(func):
   highest level function in jit, e.g.
     faster_f = jax.jit(faster_f)
   Now, by using `faster_f(a, b, c)` instead of `f(a, b, c)` you can achieve
-  a much faster сumulative time for any inputs.
+  a much faster cumulative time for any inputs.
   """
 
   def _func(*args):
