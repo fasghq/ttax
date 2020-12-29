@@ -135,8 +135,8 @@ class TTMatrixTest(jtu.JaxTestCase):
     res_actual1 = ops.full(ops.multiply(tt_a, tt_b))
     res_actual2 = ops.full(tt_a * tt_b)
     res_desired = ops.full(tt_a) * ops.full(tt_b)
-    self.assertAllClose(res_actual1, res_desired, rtol=1e-5)
-    self.assertAllClose(res_actual2, res_desired, rtol=1e-5)
+    self.assertAllClose(res_actual1, res_desired, rtol=1e-4)
+    self.assertAllClose(res_actual2, res_desired, rtol=1e-4)
 
   def testMultiplyBatch(self):
     # Elementwise multiply two batches of TT-matrices.
