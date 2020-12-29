@@ -11,6 +11,11 @@ class TTBase:
     from ttax import ops
     return ops.multiply(self, other)
 
+  def __matmul__(self, other):
+    # We can't import ops in the beginning since it creates cyclic dependencies.
+    from ttax import ops
+    return ops.matmul(self, other)
+
   @property
   def axis_dim(self):
     return self.num_batch_dims + 1

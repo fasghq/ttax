@@ -14,7 +14,6 @@ tt_einsum_cores.
 """
 
 from typing import Callable, List, Union, Dict
-import collections
 import tree
 import opt_einsum as oe
 import numpy as np
@@ -22,6 +21,7 @@ import jax.numpy as jnp
 from string import ascii_lowercase
 import copy
 
+from ttax import ops
 from ttax.base_class import TT
 from ttax.base_class import TTMatrix
 
@@ -43,6 +43,12 @@ class WrappedTT:
     self.tt = tt
     self.tt_inputs = tt_inputs
     self.tt_einsum = tt_einsum
+
+  def __mul__(self, other):
+    return ops.multiply(self, other)
+
+  def __matmul__(self, other):
+    return ops.matmul(self, other)
 
   @property
   def tt_cores(self):

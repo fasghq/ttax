@@ -74,5 +74,30 @@ class TTTensorTest(jtu.JaxTestCase):
     self.assertLess(fused_func_speed, 0.1 * func_speed)
 
 
+class TTMatrixTest(jtu.JaxTestCase):
+
+  @parameterized.named_parameters(
+      ('(a*b) @ c', '(a*b) @ c'),
+  )
+  def testFuse(self, op_type):
+    np.random.seed(1)
+    rng1, rng2, rng3 = jax.random.split(jax.random.PRNGKey(0), 3)
+    dtype = jnp.float32
+    left_shape = (2, 3, 4)
+    sum_shape = (4, 3, 5)
+    right_shape = (4, 4, 4)
+    tt_a = random_.matrix(rng1, (left_shape, sum_shape), tt_rank=3, dtype=dtype)
+    tt_b = random_.matrix(rng2, (left_shape, sum_shape), tt_rank=3, dtype=dtype)
+    tt_c = random_.matrix(rng3, (sum_shape, right_shape), tt_rank=[1, 4, 3, 1],
+                              dtype=dtype)
+    if op_type == '(a*b) @ c':
+      def func(a, b, c):
+        return (a * b) @ c
+      fused_func = compile.fuse(func)
+      res_actual = ops.full(func(tt_a, tt_b, tt_c))
+      res_desired = ops.full(fused_func(tt_a, tt_b, tt_c))
+      self.assertAllClose(res_actual, res_desired, rtol=1e-4)
+
+
 if __name__ == '__main__':
   absltest.main(testLoader=jtu.JaxTestLoader())
