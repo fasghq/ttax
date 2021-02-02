@@ -26,8 +26,8 @@ class TTBase:
 
   @property
   def tt_ranks(self):
-    return [c.shape[self.num_batch_dims] for c in self.tt_cores]
-
+    return [c.shape[self.num_batch_dims] for c in self.tt_cores].append(self.tt_cores[-1].shape[-1])
+  
   @property
   def ndims(self):
     return len(self.tt_cores)
