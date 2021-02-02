@@ -40,7 +40,7 @@ def tt_round(tt, max_tt_rank=None, epsilon=None):
     not a vector of length d + 1 where d is the number of dimensions of
     the input tensor, if epsilon is less than 0.
   """
-  
+
   if max_tt_rank is None:
     max_tt_rank = np.iinfo(np.int32).max
   num_dims = tt.ndims
@@ -59,7 +59,7 @@ def tt_round(tt, max_tt_rank=None, epsilon=None):
   else:
     raw_shape = tt.shape
 
-  tt_cores = orthogonalize_tt_cores(tt).tt_cores
+  tt_cores = orthogonalize_tt_cores(tt, True).tt_cores
   # Copy cores references so we can change the cores.
   tt_cores = list(tt_cores)
 
@@ -118,9 +118,18 @@ def orthogonalize_tt_cores(tt, left_to_right=True):
   Returns:
     TT-tensor or TT-matrix.
   """
+  if left_to_right:
+    return _orthogonalize_tt_cores_left_to_right(tt)
+  else:
+    return _orthogonalize_tt_cores_right_to_left(tt)
 
-  if not left_to_right:
-    raise NotImplementedError('Right to left orthogonalization is not supported yet.')
+
+def _orthogonalize_tt_cores_left_to_right(tt):
+  """Orthogonalize TT-cores of a TT-object.
+  Args:
+    tt: TT-tensor or TT-matrix.
+    TT-tensor or TT-matrix.
+  """
 
   # Left to right orthogonalization.
   num_dims = tt.ndims
@@ -172,6 +181,71 @@ def orthogonalize_tt_cores(tt, left_to_right=True):
     last_core_shape = (next_rank, raw_shape[-1], 1)
   tt_cores[-1] = jnp.reshape(tt_cores[-1], last_core_shape)
 
+  if tt.is_tt_matrix:
+    return TTMatrix(tt_cores)
+  else:
+    return TT(tt_cores)
+
+
+def _orthogonalize_tt_cores_right_to_left(tt):
+  """Orthogonalize TT-cores of a TT-object.
+  Args:
+    tt: TT-tensor or TT-matrix.
+  Returns:
+    TT-tensor or TT-matrix.
+  """
+  
+  # Right to left orthogonalization.
+  num_dims = tt.ndims
+  if tt.is_tt_matrix:
+    raw_shape = tt.raw_tensor_shape
+  else:
+    raw_shape = tt.shape
+
+  tt_ranks = tt.tt_ranks
+  prev_rank = tt_ranks[num_dims]
+  # Copy cores references so we can change the cores.
+  tt_cores = list(tt.tt_cores)
+  for core_idx in range(num_dims - 1, 0, -1):
+    curr_core = tt_cores[core_idx]
+    # TT-ranks could have changed on the previous iteration, so `tt_ranks` can
+    # be outdated for the current TT-rank, but should be valid for the next
+    # TT-rank.
+    curr_rank = prev_rank
+    prev_rank = tt_ranks[core_idx]
+    if tt.is_tt_matrix:
+      curr_mode_left = raw_shape[0][core_idx]
+      curr_mode_right = raw_shape[1][core_idx]
+      curr_mode = curr_mode_left * curr_mode_right
+    else:
+      curr_mode = raw_shape[core_idx]
+    
+    qr_shape = (prev_rank, curr_mode * curr_rank)
+    curr_core = jnp.reshape(curr_core, qr_shape)
+    curr_core, triang = jnp.linalg.qr(curr_core.T)
+    curr_core = curr_core.T
+    triang = triang.T
+    triang_shape = triang.shape
+
+    # The TT-rank could have changed: if qr_shape is e.g. 4 x 10, than q would
+    # be of size 4 x 4 and r would be 4 x 10, which means that the next rank
+    # should be changed to 4.
+    prev_rank = triang_shape[1]
+    if tt.is_tt_matrix:
+      new_core_shape = (prev_rank, curr_mode_left, curr_mode_right, curr_rank)
+    else:
+      new_core_shape = (prev_rank, curr_mode, curr_rank)
+    tt_cores[core_idx] = jnp.reshape(curr_core, new_core_shape)
+
+    prev_core = jnp.reshape(tt_cores[core_idx - 1], (-1, triang_shape[0]))
+    tt_cores[core_idx - 1] = jnp.matmul(prev_core, triang)
+
+  if tt.is_tt_matrix:
+    first_core_shape = (1, raw_shape[0][0], raw_shape[1][0], prev_rank)
+  else:
+    first_core_shape = (1, raw_shape[0], prev_rank)
+  tt_cores[0] = jnp.reshape(tt_cores[0], first_core_shape)
+  
   if tt.is_tt_matrix:
     return TTMatrix(tt_cores)
   else:
