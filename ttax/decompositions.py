@@ -110,7 +110,7 @@ def tt_round(tt, max_tt_rank=None, epsilon=None):
     return TT(tt_cores)
 
 
-  def orthogonalize_tt_cores(tt, left_to_right=True):
+def orthogonalize_tt_cores(tt, left_to_right=True):
   """Orthogonalize TT-cores of a TT-object.
   Args:
     tt: TT-tensor or TT-matrix.
