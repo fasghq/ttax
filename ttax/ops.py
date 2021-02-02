@@ -27,7 +27,7 @@ def tt_vmap(func):
 def full_tt_tensor(tt: TT) -> jnp.array:
   """Converts TT into a regular tensor.
   """
-  num_dims = len(tt.tt_cores)
+  num_dims = tt.ndims
 
   dtype = tt.tt_cores[0].dtype  # TODO: make tt.dtype.
   res = jnp.ones((1, 1), dtype=dtype)
@@ -43,7 +43,7 @@ def full_tt_tensor(tt: TT) -> jnp.array:
 def full_tt_matrix(tt: TTMatrix) -> jnp.array:
   """Converts TT-matrix into a regular matrix.
   """
-  num_dims = len(tt.tt_cores)
+  num_dims = tt.ndims
 
   dtype = tt.tt_cores[0].dtype  # TODO: make tt.dtype.
   res = jnp.ones((1, 1), dtype=dtype)
