@@ -6,7 +6,7 @@ from ttax.base_class import TT
 from ttax.base_class import TTMatrix
 
 
-def tt_round(tt, max_tt_rank=None, epsilon=None):
+def round(tt, max_tt_rank=None, epsilon=None):
   """TT-rounding procedure, returns a TT object with smaller TT-ranks.
   Args:
     tt: TT-tensor or TT-matrix.
@@ -85,14 +85,13 @@ def tt_round(tt, max_tt_rank=None, epsilon=None):
     u, s, v = jnp.linalg.svd(curr_core, full_matrices=False)
     u = u[:, 0:ranks[core_idx]]
     s = s[0:ranks[core_idx]]
-    v = v[:, 0:ranks[core_idx]]
+    v = v[0:ranks[core_idx], :]
     if tt.is_tt_matrix:
       core_shape = (ranks[core_idx], curr_mode_left, curr_mode_right,
                     ranks[core_idx + 1])
     else:
       core_shape = (ranks[core_idx], curr_mode, ranks[core_idx + 1])
-    print("###", v.shape, core_shape)
-    tt_cores[core_idx] = jnp.reshape(v.T, core_shape)
+    tt_cores[core_idx] = jnp.reshape(v, core_shape)
     prev_core_shape = (-1, rows)
     tt_cores[core_idx - 1] = jnp.reshape(tt_cores[core_idx - 1], prev_core_shape)
     tt_cores[core_idx - 1] = jnp.matmul(tt_cores[core_idx - 1], u)

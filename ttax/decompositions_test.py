@@ -64,12 +64,12 @@ class DecompositionsTest(jtu.JaxTestCase):
     u, s, v = np.linalg.svd(x, full_matrices=False)
     core_1 = u @ np.diag(s)
     core_1 = core_1.reshape(1, 10, 10)
-    core_2 = v.T
+    core_2 = v
     core_2 = core_2.reshape(10, 20, 1)
     tt = TT((core_1, core_2))
     truncated_x = u[:, :rank] @ np.diag(s[:rank]) @ v[:rank, :]
     rounded = decompositions.round(tt, 5)
-    self.assertAllClose(truncated_x, ops.full(rounded))
+    self.assertAllClose(truncated_x, ops.full(rounded), rtol=1e-5, atol=1e-5)
 
 
 if __name__ == '__main__':
