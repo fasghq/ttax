@@ -26,7 +26,7 @@ class DecompositionsTest(jtu.JaxTestCase):
 
     self.assertAllClose(ops.full(tens), ops.full(orthogonal), atol=1e-5,
                         rtol=1e-5)
-    self.assertArraysEqual(updated_tt_ranks, tens.tt_ranks)
+    self.assertArraysEqual(updated_tt_ranks, orthogonal.tt_ranks)
     # Check that the TT-cores are orthogonal.
     for core_idx in range(4 - 1):
       core = orthogonal.tt_cores[core_idx]
@@ -46,7 +46,7 @@ class DecompositionsTest(jtu.JaxTestCase):
 
     self.assertAllClose(ops.full(tens), ops.full(orthogonal), atol=1e-5,
                         rtol=1e-5)
-    self.assertArraysEqual(updated_tt_ranks, tens.tt_ranks)
+    self.assertArraysEqual(updated_tt_ranks, orthogonal.tt_ranks)
     # Check that the TT-cores are orthogonal.
     for core_idx in range(1, 4):
       core = orthogonal.tt_cores[core_idx]
