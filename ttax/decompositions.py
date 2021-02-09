@@ -47,19 +47,21 @@ def round(tt, max_tt_rank=None, epsilon=None):
   max_tt_rank = np.array(max_tt_rank).astype(np.int32)
   if np.any(max_tt_rank < 1):
     raise ValueError('Maximum TT-rank should be greater or equal to 1.')
-  if epsilon is not None and epsilon < 0:
+  if epsilon is None:
+    raise NotImplementedError('Epsilon is not supported yet.')
+  elif epsilon < 0:
     raise ValueError('Epsilon should be non-negative.')
   if max_tt_rank.size == 1:
     max_tt_rank = (max_tt_rank * np.ones(num_dims + 1)).astype(jnp.int32)
   elif max_tt_rank.size != num_dims + 1:
     raise ValueError('max_tt_rank should be a number or a vector of size (d+1) '
-                     'where d is the number of dimensions (rank) of the tensor.')
+                     'where d is the number of dimensions of the tensor.')
   if tt.is_tt_matrix:
     raw_shape = tt.raw_tensor_shape
   else:
     raw_shape = tt.shape
 
-  tt_cores = orthogonalize_tt_cores(tt, True).tt_cores
+  tt_cores = orthogonalize(tt).tt_cores
   # Copy cores references so we can change the cores.
   tt_cores = list(tt_cores)
 
