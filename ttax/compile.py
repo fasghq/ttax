@@ -73,6 +73,16 @@ class WrappedTT:
   @property
   def is_tt_matrix(self):
     return self.tt.is_tt_matrix
+  
+  @property
+  def tt_ranks(self):
+    ranks = [c.shape[self.num_batch_dims] for c in self.tt_cores]
+    ranks.append(self.tt_cores[-1].shape[-1])
+    return ranks
+  
+  @property
+  def ndims(self):
+    return len(self.tt_cores)
 
 
 class TTEinsum:
