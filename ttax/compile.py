@@ -76,13 +76,13 @@ class WrappedTT:
   
   @property
   def tt_ranks(self):
-    ranks = [c.shape[self.num_batch_dims] for c in self.tt_cores]
-    ranks.append(self.tt_cores[-1].shape[-1])
+    ranks = [c.shape[self.num_batch_dims] for c in self.tt.tt_cores]
+    ranks.append(self.tt.tt_cores[-1].shape[-1])
     return ranks
   
   @property
   def ndim(self):
-    return len(self.tt_cores)
+    return len(self.tt.tt_cores)
 
 
 class TTEinsum:
