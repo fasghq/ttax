@@ -23,7 +23,7 @@ class DecompositionsTest(jtu.JaxTestCase):
     tt_ranks = (1, 5, 2, 17, 1)
     updated_tt_ranks = (1, 2, 2, 6, 1)
     tens = random_.tensor(rng, shape, tt_rank=tt_ranks, dtype=dtype)
-    orthogonal = decompositions.orthogonalize_tt_cores(tens)
+    orthogonal = decompositions.orthogonalize(tens)
 
     self.assertAllClose(ops.full(tens), ops.full(orthogonal), atol=1e-5,
                         rtol=1e-5)
@@ -43,7 +43,7 @@ class DecompositionsTest(jtu.JaxTestCase):
     tt_ranks = (1, 5, 2, 17, 1)
     updated_tt_ranks = (1, 5, 2, 3, 1)
     tens = random_.tensor(rng, shape, tt_rank=tt_ranks, dtype=dtype)
-    orthogonal = decompositions.orthogonalize_tt_cores(tens, left_to_right=False)
+    orthogonal = decompositions.orthogonalize(tens, left_to_right=False)
 
     self.assertAllClose(ops.full(tens), ops.full(orthogonal), atol=1e-5,
                         rtol=1e-5)
