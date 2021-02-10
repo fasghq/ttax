@@ -43,7 +43,7 @@ def round(tt, max_tt_rank=None, epsilon=None):
 
   if max_tt_rank is None:
     max_tt_rank = np.iinfo(np.int32).max
-  num_dims = tt.ndims
+  num_dims = tt.ndim
   max_tt_rank = np.array(max_tt_rank).astype(np.int32)
   if np.any(max_tt_rank < 1):
     raise ValueError('Maximum TT-rank should be greater or equal to 1.')
@@ -131,7 +131,7 @@ def _orthogonalize_tt_cores_left_to_right(tt):
   """
 
   # Left to right orthogonalization.
-  num_dims = tt.ndims
+  num_dims = tt.ndim
   if tt.is_tt_matrix:
     raw_shape = tt.raw_tensor_shape
   else:
@@ -195,7 +195,7 @@ def _orthogonalize_tt_cores_right_to_left(tt):
   """
   
   # Right to left orthogonalization.
-  num_dims = tt.ndims
+  num_dims = tt.ndim
   if tt.is_tt_matrix:
     raw_shape = tt.raw_tensor_shape
   else:
