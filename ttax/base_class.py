@@ -31,7 +31,7 @@ class TTBase:
     return ranks
   
   @property
-  def ndims(self):
+  def ndim(self):
     return len(self.tt_cores)
 
 
