@@ -47,10 +47,8 @@ def round(tt, max_tt_rank=None, epsilon=None):
   max_tt_rank = np.array(max_tt_rank).astype(np.int32)
   if np.any(max_tt_rank < 1):
     raise ValueError('Maximum TT-rank should be greater or equal to 1.')
-  if epsilon is None:
+  if epsilon is not None:
     raise NotImplementedError('Epsilon is not supported yet.')
-  elif epsilon < 0:
-    raise ValueError('Epsilon should be non-negative.')
   if max_tt_rank.size == 1:
     max_tt_rank = (max_tt_rank * np.ones(num_dims + 1)).astype(jnp.int32)
   elif max_tt_rank.size != num_dims + 1:
