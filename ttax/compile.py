@@ -73,6 +73,14 @@ class WrappedTT:
   @property
   def is_tt_matrix(self):
     return self.tt.is_tt_matrix
+  
+  @property
+  def tt_ranks(self):
+    return self.tt.tt_ranks
+  
+  @property
+  def ndim(self):
+    return self.tt.ndim
 
 
 class TTEinsum:

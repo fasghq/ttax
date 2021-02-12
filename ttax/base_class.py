@@ -24,6 +24,16 @@ class TTBase:
   def batch_shape(self):
     return self.tt_cores[0].shape[:self.num_batch_dims]
 
+  @property
+  def tt_ranks(self):
+    ranks = [c.shape[self.num_batch_dims] for c in self.tt_cores]
+    ranks.append(self.tt_cores[-1].shape[-1])
+    return ranks
+  
+  @property
+  def ndim(self):
+    return len(self.tt_cores)
+
 
 @flax.struct.dataclass
 class TT(TTBase):
