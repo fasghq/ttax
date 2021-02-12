@@ -68,7 +68,7 @@ def full_tt_matrix(tt: TTMatrix) -> jnp.array:
   return jnp.reshape(res, tt.shape)
 
 
-@tt_vmap
+@tt_vmap()
 def full(tt: TTBase) -> jnp.array:
   """Converts TT or TTMatrix into a regular tensor/matrix.
   """
