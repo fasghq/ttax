@@ -38,6 +38,7 @@ def tt_vmap(num_batch_args=None):
         else:
           in_axis = 0
         # Vmap everything num_batch_dims times.
+        vmapped = func
         for _ in range(tt_arg.num_batch_dims):
             vmapped = jax.vmap(vmapped, in_axis)
         return vmapped(*args, **kwargs)
