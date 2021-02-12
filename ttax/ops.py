@@ -8,20 +8,41 @@ from ttax.base_class import TTMatrix
 from ttax.compile import TTEinsum, to_function, I_OR_IJ
 
 
-def tt_vmap(func):
-  """Decorator which makes a function support batch TT-inputs."""
-  @functools.wraps(func)
-  def vectorized_func(*args, **kwargs):
-    tt_arg = args[0]  # TODO: what if only kwargs are present?
-    if tt_arg.num_batch_dims == 0:
-      return func(*args, **kwargs)
-    else:
-      # Vmap everything num_batch_dims times.
-      vmapped = func
-      for _ in range(tt_arg.num_batch_dims):
-        vmapped = jax.vmap(vmapped)
-      return vmapped(*args, **kwargs)
-  return vectorized_func
+def tt_vmap(num_batch_args=None):
+  """Decorator which makes a function support batch TT-inputs.
+  Arg:
+    num_batch_args - integer or None.
+      If None, than function will be mapped over all arguments.
+      If integer, specifies the count of first arguments to map over, e.g.
+      num_batch_args=n means that function will be mapped over 
+      first n arguments.
+  Returns:
+    Decorator
+  Comments:
+    The function is vmapped num_batch_dims times, as it supports 
+    multidimensional batches. The number of batch dimension to be 
+    mapped over is shown by num_batch_dims property and should be 
+    the same for all args of the function, by which it will be mapped over. 
+    Otherwise such axis should be specified by num_batch_args.
+  """
+  def tt_vmap_fixed_batching_pattern(func):
+    @functools.wraps(func)
+    def vectorized_func(*args, **kwargs):
+      tt_arg = args[0]  # TODO: what if only kwargs are present?
+      if tt_arg.num_batch_dims == 0:
+        return func(*args, **kwargs)
+      else:
+        if num_batch_args is not None:
+          num_non_batch_args = len(args) + len(kwargs) - num_batch_args
+          in_axis = [0] * num_batch_args + [None] *  num_non_batch_args
+        else:
+          in_axis = 0
+        # Vmap everything num_batch_dims times.
+        for _ in range(tt_arg.num_batch_dims):
+            vmapped = jax.vmap(vmapped, in_axis)
+        return vmapped(*args, **kwargs)
+    return vectorized_func
+  return tt_vmap_fixed_batching_pattern
 
 
 def full_tt_tensor(tt: TT) -> jnp.array:
