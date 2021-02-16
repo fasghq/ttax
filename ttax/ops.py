@@ -165,12 +165,9 @@ def add(tt_a, tt_b):
 
   if tt_a.is_tt_matrix():
     tt_cores = _add_matrix_cores(tt_a, tt_b)
-  else:
-    tt_cores = _add_tensor_cores(tt_a, tt_b)
-
-  if tt.is_tt_matrix:
     return TTMatrix(tt_cores)
   else:
+    tt_cores = _add_tensor_cores(tt_a, tt_b)
     return TT(tt_cores)
 
 
