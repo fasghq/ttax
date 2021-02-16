@@ -131,6 +131,7 @@ def matmul(a, b):
   func = to_function(tt_einsum)
   return func(a, b)
 
+
   def add(tt_a, tt_b):
   """Returns a TensorTrain corresponding to elementwise sum tt_a + tt_b.
   The shapes of tt_a and tt_b should coincide.
