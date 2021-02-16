@@ -130,3 +130,100 @@ def matmul(a, b):
   )
   func = to_function(tt_einsum)
   return func(a, b)
+
+  def add(tt_a, tt_b):
+  """Returns a TensorTrain corresponding to elementwise sum tt_a + tt_b.
+  The shapes of tt_a and tt_b should coincide.
+  Supports broadcasting:
+    add(TensorTrainBatch, TensorTrain)
+  adds TensorTrain to each element in the batch of TTs in TensorTrainBatch.
+  Args:
+    tt_a: TT or TT-Matrix
+    tt_b: TT or TT-Matrix
+  Returns
+    TT or TT-Matrix
+  Raises
+    ValueError if the arguments shapes do not coincide.
+  """
+  num_dims = tt_a.ndim
+  if tt_a.is_tt_matrix != tt_b.is_tt_matrix:
+    raise ValueError('The arguments should be both TT-tensors or both '
+                     'TT-matrices')
+  if tt_a.get_raw_shape() != tt_b.get_raw_shape():
+    raise ValueError('The arguments should have the same shape.')
+
+  #---TODO---
+  '''
+  if not shapes.is_batch_broadcasting_possible(tt_a, tt_b):
+    raise ValueError('The batch sizes are different and not 1, broadcasting is '
+                     'not available.')
+  '''
+  #---TODO---
+
+  # batches are not supported yet
+
+  if tt_a.is_tt_matrix():
+    tt_cores = _add_matrix_cores(tt_a, tt_b)
+  else:
+    tt_cores = _add_tensor_cores(tt_a, tt_b)
+
+  if tt.is_tt_matrix:
+    return TTMatrix(tt_cores)
+  else:
+    return TT(tt_cores)
+
+
+def _add_tensor_cores(tt_a, tt_b):
+  """Internal function to be called from add for two TT-tensors.
+  Does the actual assembling of the TT-cores to add two TT-tensors.
+  """
+  num_dims = tt_a.ndim
+  shape = tt_a.raw_tensor_shape
+  a_ranks = tt_a.tt_ranks
+  b_ranks = tt_b.tt_ranks
+  tt_cores = []
+  for core_idx in range(num_dims):
+    a_core = tt_a.tt_cores[core_idx]
+    b_core = tt_b.tt_cores[core_idx]
+    if core_idx == 0:
+      curr_core = jnp.concatenate((a_core, b_core), axis=2)
+    elif core_idx == ndims - 1:
+      curr_core = jnp.concatenate((a_core, b_core), axis=0)
+    else:
+      upper_zeros = jnp.zeros((a_ranks[core_idx], shape[0][core_idx],
+                              b_ranks[core_idx + 1]), dtype)
+      lower_zeros = jnp.zeros((b_ranks[core_idx], shape[0][core_idx],
+                              a_ranks[core_idx + 1]), dtype)
+      upper = jnp.concatenate((a_core, upper_zeros), axis=2)
+      lower = jnp.concatenate((lower_zeros, b_core), axis=2)
+      curr_core = jnp.concatenate((upper, lower), axis=0)
+    tt_cores.append(curr_core)
+  return tt_cores
+
+
+def _add_matrix_cores(tt_a, tt_b):
+  """Internal function to be called from add for two TT-matrices.
+  Does the actual assembling of the TT-cores to add two TT-matrices.
+  """
+  num_dims = tt_a.ndim
+  shape = tt_a.raw_tensor_shape
+  a_ranks = tt_a.tt_ranks
+  b_ranks = tt_b.tt_ranks
+  tt_cores = []
+  for core_idx in range(num_dims):
+    a_core = tt_a.tt_cores[core_idx]
+    b_core = tt_b.tt_cores[core_idx]
+    if core_idx == 0:
+      curr_core = jnp.concatenate((a_core, b_core), axis=3)
+    elif core_idx == ndims - 1:
+      curr_core = jnp.concatenate((a_core, b_core), axis=0)
+    else:
+      upper_zeros = jnp.zeros((a_ranks[core_idx], shape[0][core_idx],
+                              shape[1][core_idx], b_ranks[core_idx + 1]), dtype)
+      lower_zeros = jnp.zeros((b_ranks[core_idx], shape[0][core_idx],
+                              shape[1][core_idx], a_ranks[core_idx + 1]), dtype)
+      upper = jnp.concatenate((a_core, upper_zeros), axis=3)
+      lower = jnp.concatenate((lower_zeros, b_core), axis=3)
+      curr_core = jnp.concatenate((upper, lower), axis=0)
+    tt_cores.append(curr_core)
+  return tt_cores
