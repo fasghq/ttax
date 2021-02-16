@@ -82,6 +82,9 @@ class WrappedTT:
   def ndim(self):
     return self.tt.ndim
 
+  @property
+  def raw_tensor_shape(self):
+    return self.tt.raw_tensor_shape
 
 class TTEinsum:
 

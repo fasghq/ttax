@@ -52,6 +52,10 @@ class TT(TTBase):
   def is_tt_matrix(self):
     return False
 
+  @property
+  def raw_tensor_shape(self):
+    return [c.shape[self.axis_dim] for c in self.tt_cores]
+
 
 @flax.struct.dataclass
 class TTMatrix(TTBase):
