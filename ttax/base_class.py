@@ -15,6 +15,11 @@ class TTBase:
     # We can't import ops in the beginning since it creates cyclic dependencies.
     from ttax import ops
     return ops.matmul(self, other)
+  
+  def __add__(self, other):
+    # We can't import ops in the beginning since it creates cyclic dependencies.
+    from ttax import ops
+    return ops.add(self, other)
 
   @property
   def axis_dim(self):
