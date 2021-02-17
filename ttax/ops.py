@@ -163,7 +163,7 @@ def add(tt_a, tt_b):
 
   # batches are not supported yet
 
-  if tt_a.is_tt_matrix():
+  if tt_a.is_tt_matrix:
     tt_cores = _add_matrix_cores(tt_a, tt_b)
     return TTMatrix(tt_cores)
   else:
