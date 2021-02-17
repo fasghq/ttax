@@ -60,6 +60,43 @@ class TT(TTBase):
   @property
   def raw_tensor_shape(self):
     return [c.shape[self.axis_dim] for c in self.tt_cores]
+  
+  def __getitem__(self, slice_spec):
+    """Basic indexing, returns a TT containing the specified region.
+    Examples:
+      >>> a = ttax.random.tensor(rng, [2, 3, 4])
+      >>> a[1, :, :]
+      is a 2D TensorTrain 3 x 4.
+      >>> a[1:2, :, :]
+      is a 3D TensorTrain 1 x 3 x 4
+    """
+    if len(slice_spec) != self.ndim:
+      raise ValueError('Expected %d indices, got %d' % (self.ndim,
+                                                        len(slice_spec)))
+    new_tt_cores = []
+    remainder = None
+    for i in range(self.ndim):
+      curr_core = self.tt_cores[i]
+      sliced_core = curr_core[:, slice_spec[i], :]
+      if len(curr_core.raw_tensor_shape) != len(sliced_core.raw_tensor_shape):
+        # This index is specified exactly and we want to collapse this axis.
+        if remainder is None:
+          remainder = sliced_core
+        else:
+          remainder = jnp.matmul(remainder, sliced_core)
+      else:
+        if remainder is not None:
+          # Add reminder from the previous collapsed cores to the current core.
+          sliced_core = jnp.einsum('ab,bid->aid', remainder, sliced_core)
+          remainder = None
+        new_tt_cores.append(sliced_core)
+
+    if remainder is not None:
+      # The reminder obtained from collapsing the last cores.
+      new_tt_cores[-1] = jnp.einsum('aib,bd->aid', new_tt_cores[-1], remainder)
+      remainder = None
+    # TODO: infer the output ranks and shape.
+    return TT(new_tt_cores)
 
 
 @flax.struct.dataclass
