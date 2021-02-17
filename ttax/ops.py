@@ -150,7 +150,7 @@ def add(tt_a, tt_b):
   if tt_a.is_tt_matrix != tt_b.is_tt_matrix:
     raise ValueError('The arguments should be both TT-tensors or both '
                      'TT-matrices')
-  if tt_a.get_raw_shape() != tt_b.get_raw_shape():
+  if tt_a.raw_tensor_shape != tt_b.raw_tensor_shape:
     raise ValueError('The arguments should have the same shape.')
 
   #---TODO---
