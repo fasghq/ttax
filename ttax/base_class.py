@@ -78,7 +78,7 @@ class TT(TTBase):
     for i in range(self.ndim):
       curr_core = self.tt_cores[i]
       sliced_core = curr_core[:, slice_spec[i], :]
-      if len(curr_core.raw_tensor_shape) != len(sliced_core.raw_tensor_shape):
+      if len(curr_core.shape) != len(sliced_core.shape):
         # This index is specified exactly and we want to collapse this axis.
         if remainder is None:
           remainder = sliced_core
