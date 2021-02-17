@@ -188,9 +188,9 @@ def _add_tensor_cores(tt_a, tt_b):
     elif core_idx == num_dims - 1:
       curr_core = jnp.concatenate((a_core, b_core), axis=0)
     else:
-      upper_zeros = jnp.zeros((a_ranks[core_idx], shape[0][core_idx],
+      upper_zeros = jnp.zeros((a_ranks[core_idx], shape[core_idx],
                               b_ranks[core_idx + 1]))
-      lower_zeros = jnp.zeros((b_ranks[core_idx], shape[0][core_idx],
+      lower_zeros = jnp.zeros((b_ranks[core_idx], shape[core_idx],
                               a_ranks[core_idx + 1]))
       upper = jnp.concatenate((a_core, upper_zeros), axis=2)
       lower = jnp.concatenate((lower_zeros, b_core), axis=2)
@@ -216,9 +216,9 @@ def _add_matrix_cores(tt_a, tt_b):
     elif core_idx == num_dims - 1:
       curr_core = jnp.concatenate((a_core, b_core), axis=0)
     else:
-      upper_zeros = jnp.zeros((a_ranks[core_idx], shape[0][core_idx],
+      upper_zeros = jnp.zeros((a_ranks[core_idx], shape[core_idx],
                               shape[1][core_idx], b_ranks[core_idx + 1]))
-      lower_zeros = jnp.zeros((b_ranks[core_idx], shape[0][core_idx],
+      lower_zeros = jnp.zeros((b_ranks[core_idx], shape[core_idx],
                               shape[1][core_idx], a_ranks[core_idx + 1]))
       upper = jnp.concatenate((a_core, upper_zeros), axis=3)
       lower = jnp.concatenate((lower_zeros, b_core), axis=3)
