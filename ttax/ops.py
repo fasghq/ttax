@@ -131,7 +131,8 @@ def matmul(a, b):
   func = to_function(tt_einsum)
   return func(a, b)
 
-  def add(tt_a, tt_b):
+
+def add(tt_a, tt_b):
   """Returns a TensorTrain corresponding to elementwise sum tt_a + tt_b.
   The shapes of tt_a and tt_b should coincide.
   Supports broadcasting:
@@ -149,7 +150,7 @@ def matmul(a, b):
   if tt_a.is_tt_matrix != tt_b.is_tt_matrix:
     raise ValueError('The arguments should be both TT-tensors or both '
                      'TT-matrices')
-  if tt_a.get_raw_shape() != tt_b.get_raw_shape():
+  if tt_a.raw_tensor_shape != tt_b.raw_tensor_shape:
     raise ValueError('The arguments should have the same shape.')
 
   #---TODO---
@@ -162,14 +163,11 @@ def matmul(a, b):
 
   # batches are not supported yet
 
-  if tt_a.is_tt_matrix():
+  if tt_a.is_tt_matrix:
     tt_cores = _add_matrix_cores(tt_a, tt_b)
-  else:
-    tt_cores = _add_tensor_cores(tt_a, tt_b)
-
-  if tt.is_tt_matrix:
     return TTMatrix(tt_cores)
   else:
+    tt_cores = _add_tensor_cores(tt_a, tt_b)
     return TT(tt_cores)
 
 
@@ -187,13 +185,13 @@ def _add_tensor_cores(tt_a, tt_b):
     b_core = tt_b.tt_cores[core_idx]
     if core_idx == 0:
       curr_core = jnp.concatenate((a_core, b_core), axis=2)
-    elif core_idx == ndims - 1:
+    elif core_idx == num_dims - 1:
       curr_core = jnp.concatenate((a_core, b_core), axis=0)
     else:
-      upper_zeros = jnp.zeros((a_ranks[core_idx], shape[0][core_idx],
-                              b_ranks[core_idx + 1]), dtype)
-      lower_zeros = jnp.zeros((b_ranks[core_idx], shape[0][core_idx],
-                              a_ranks[core_idx + 1]), dtype)
+      upper_zeros = jnp.zeros((a_ranks[core_idx], shape[core_idx],
+                              b_ranks[core_idx + 1]))
+      lower_zeros = jnp.zeros((b_ranks[core_idx], shape[core_idx],
+                              a_ranks[core_idx + 1]))
       upper = jnp.concatenate((a_core, upper_zeros), axis=2)
       lower = jnp.concatenate((lower_zeros, b_core), axis=2)
       curr_core = jnp.concatenate((upper, lower), axis=0)
@@ -215,13 +213,13 @@ def _add_matrix_cores(tt_a, tt_b):
     b_core = tt_b.tt_cores[core_idx]
     if core_idx == 0:
       curr_core = jnp.concatenate((a_core, b_core), axis=3)
-    elif core_idx == ndims - 1:
+    elif core_idx == num_dims - 1:
       curr_core = jnp.concatenate((a_core, b_core), axis=0)
     else:
-      upper_zeros = jnp.zeros((a_ranks[core_idx], shape[0][core_idx],
-                              shape[1][core_idx], b_ranks[core_idx + 1]), dtype)
-      lower_zeros = jnp.zeros((b_ranks[core_idx], shape[0][core_idx],
-                              shape[1][core_idx], a_ranks[core_idx + 1]), dtype)
+      upper_zeros = jnp.zeros((a_ranks[core_idx], shape[core_idx],
+                              shape[1][core_idx], b_ranks[core_idx + 1]))
+      lower_zeros = jnp.zeros((b_ranks[core_idx], shape[core_idx],
+                              shape[1][core_idx], a_ranks[core_idx + 1]))
       upper = jnp.concatenate((a_core, upper_zeros), axis=3)
       lower = jnp.concatenate((lower_zeros, b_core), axis=3)
       curr_core = jnp.concatenate((upper, lower), axis=0)
