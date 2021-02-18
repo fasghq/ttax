@@ -34,6 +34,10 @@ class TTBase:
   def ndim(self):
     return len(self.tt_cores)
 
+  @property
+  def batch_loc(self):
+    return BatchIndexing(tt)
+
 
 @flax.struct.dataclass
 class TT(TTBase):
@@ -80,3 +84,23 @@ class TTMatrix(TTBase):
   @property
   def is_tt_matrix(self):
     return True
+
+
+class BatchIndexing:
+  def __init__(self, tt):
+    self.tt = tt
+
+  def __getitem__(self, indices: list):
+    non_none_indices = [idx for idx in indices if idx is not None]
+    if len(non_none_indices) > self.tt_num_batch_dims:
+      raise ValueError('Expected %d indices, got %d' % (self.tt.num_batch_dims,
+                                                        len(non_none_indices)))
+    new_cores = []
+    for core_idx in range(self.tt.ndim):
+      curr_core = self.tt_cores[core_idx]
+      new_cores.append(curr_core.__getitem__(indices))
+
+    if tt.is_tt_matrix:
+      return TTMatrix(new_cores)
+    else:
+      return TT(new_cores)
