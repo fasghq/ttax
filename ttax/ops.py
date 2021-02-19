@@ -146,21 +146,13 @@ def add(tt_a, tt_b):
   Raises
     ValueError if the arguments shapes do not coincide.
   """
-  num_dims = tt_a.ndim
-  if tt_a.is_tt_matrix != tt_b.is_tt_matrix:
-    raise ValueError('The arguments should be both TT-tensors or both '
-                     'TT-matrices')
-  if tt_a.raw_tensor_shape != tt_b.raw_tensor_shape:
-    raise ValueError('The arguments should have the same shape.')
-
-  #---TODO---
-  '''
-  if not shapes.is_batch_broadcasting_possible(tt_a, tt_b):
-    raise ValueError('The batch sizes are different and not 1, broadcasting is '
-                     'not available.')
-  '''
-  #---TODO---
-
+  if not are_shapes_equal(tt_a, tt_b):
+    raise ValueError('Types of the arguments or their tensor '
+                     'shapes are different, addition is not '
+                     ' available.)
+  if not are_batches_broadcastable(tt_a, tt_b):
+    raise ValueError('The batch sizes are different and not 1, '
+                     'broadcasting is not available.')
   # batches are not supported yet
 
   if tt_a.is_tt_matrix:
@@ -225,3 +217,51 @@ def _add_matrix_cores(tt_a, tt_b):
       curr_core = jnp.concatenate((upper, lower), axis=0)
     tt_cores.append(curr_core)
   return tt_cores
+
+
+def are_shapes_equal(tt_a, tt_b):
+  """Returns the result of equality check of 2 tensors' shapes: 
+  True if shapes are equal and False otherwise.
+  The arguments should be both TT-tensors or both TT-matrices.
+  The arguments should have the same tensor shape.
+  e.g. for TT core (*, *, ..., *, r_{i}, n_{i}, r_{i+1}):
+  axis *, *, ..., * correspond to the batch shape,
+  axis r_{i}, n_{i}, r_{i+1} correspond to the tensor shape.
+  Args:
+    tt_a: TT or TT-Matrix
+    tt_b: TT or TT-Matrix
+  Returns:
+    tensor_check: bool
+  """
+  tensor_check = True
+  if tt_a.is_tt_matrix != tt_b.is_tt_matrix:
+    tensor_check = False
+  if tt_a.raw_tensor_shape != tt_b.raw_tensor_shape:
+    tensor_check = False
+  return tensor_check
+
+
+def are_batches_broadcastable(tt_a, tt_b):
+  """Returns the result of compatibility check of 2 tensors' batches: 
+  True if batches are compatible and False otherwise.
+  The batch sizes should be equal otherwise at least one of them 
+  should equal to 1 for broadcasting to be available.
+  e.g. for TT core (*, *, ..., *, r_{i}, n_{i}, r_{i+1}):
+  axis *, *, ..., * correspond to the batch shape,
+  axis r_{i}, n_{i}, r_{i+1} correspond to the tensor shape.
+  Args:
+    tt_a: TT or TT-Matrix
+    tt_b: TT or TT-Matrix
+  Returns:
+    batch_check: bool
+  """
+  batch_check = True
+  if tt_a.num_batch_dims != tt_b.num_batch_dims:
+    batch_check = False
+  else:
+    for a, b in zip(tt_a.batch_shape, tt_b.batch_shape):
+      if a == 1 or b == 1 or a == b:
+        pass
+      else:
+        batch_check = False
+  return batch_check
