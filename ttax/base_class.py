@@ -41,7 +41,7 @@ class TTBase:
 
   @property
   def batch_loc(self):
-    return BatchIndexing(tt)
+    return BatchIndexing(self)
 
 
 @flax.struct.dataclass
