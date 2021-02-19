@@ -149,7 +149,7 @@ def add(tt_a, tt_b):
   if not are_shapes_equal(tt_a, tt_b):
     raise ValueError('Types of the arguments or their tensor '
                      'shapes are different, addition is not '
-                     ' available.)
+                     ' available.')
   if not are_batches_broadcastable(tt_a, tt_b):
     raise ValueError('The batch sizes are different and not 1, '
                      'broadcasting is not available.')
