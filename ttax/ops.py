@@ -223,10 +223,8 @@ def are_shapes_equal(tt_a, tt_b):
   """Returns the result of equality check of 2 tensors' shapes: 
   True if shapes are equal and False otherwise.
   The arguments should be both TT-tensors or both TT-matrices.
-  The arguments should have the same tensor shape.
-  e.g. for TT core (*, *, ..., *, r_{i}, n_{i}, r_{i+1}):
-  axis *, *, ..., * correspond to the batch shape,
-  axis r_{i}, n_{i}, r_{i+1} correspond to the tensor shape.
+  The arguments should have the same tensor shape
+  but potentially different TT-ranks.
   Args:
     tt_a: TT or TT-Matrix
     tt_b: TT or TT-Matrix
@@ -236,7 +234,8 @@ def are_shapes_equal(tt_a, tt_b):
   tensor_check = True
   if tt_a.is_tt_matrix != tt_b.is_tt_matrix:
     tensor_check = False
-  if tt_a.raw_tensor_shape != tt_b.raw_tensor_shape:
+  if np.any(np.array(tt_a.raw_tensor_shape) != 
+            np.array(tt_b.raw_tensor_shape)):
     tensor_check = False
   return tensor_check
 
@@ -246,9 +245,6 @@ def are_batches_broadcastable(tt_a, tt_b):
   True if batches are compatible and False otherwise.
   The batch sizes should be equal otherwise at least one of them 
   should equal to 1 for broadcasting to be available.
-  e.g. for TT core (*, *, ..., *, r_{i}, n_{i}, r_{i+1}):
-  axis *, *, ..., * correspond to the batch shape,
-  axis r_{i}, n_{i}, r_{i+1} correspond to the tensor shape.
   Args:
     tt_a: TT or TT-Matrix
     tt_b: TT or TT-Matrix
@@ -257,7 +253,7 @@ def are_batches_broadcastable(tt_a, tt_b):
   """
   batch_check = True
   if tt_a.num_batch_dims != tt_b.num_batch_dims:
-    batch_check = False
+    return False
   else:
     for a, b in zip(tt_a.batch_shape, tt_b.batch_shape):
       if a == 1 or b == 1 or a == b:
