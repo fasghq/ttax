@@ -234,8 +234,8 @@ def are_shapes_equal(tt_a, tt_b):
   tensor_check = True
   if tt_a.is_tt_matrix != tt_b.is_tt_matrix:
     tensor_check = False
-  if np.any(np.array(tt_a.raw_tensor_shape) != 
-            np.array(tt_b.raw_tensor_shape)):
+  if jnp.any(jnp.array(tt_a.raw_tensor_shape) != 
+            jnp.array(tt_b.raw_tensor_shape)):
     tensor_check = False
   return tensor_check
 
