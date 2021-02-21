@@ -82,8 +82,8 @@ class TTTensorTest(jtu.JaxTestCase):
     # Add two TT-tensors.
     rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
     dtype = jnp.float32
-    tt_a = random_.tensor(rng1, (1, 2, 3, 4), tt_rank=2, dtype=dtype)
-    tt_b = random_.tensor(rng2, (1, 2, 3, 4), tt_rank=[1, 1, 4, 3, 1],
+    tt_a = random_.tensor(rng1, (2, 1, 3, 4), tt_rank=2, dtype=dtype)
+    tt_b = random_.tensor(rng2, (2, 1, 3, 4), tt_rank=[1, 2, 4, 3, 1],
                           dtype=dtype)
 
     res_actual1 = ops.full(ops.add(tt_a, tt_b))
@@ -96,9 +96,9 @@ class TTTensorTest(jtu.JaxTestCase):
     # Add two batches of TT-tensors.
     rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
     dtype = jnp.float32
-    tt_a = random_.tensor(rng1, (1, 2, 3, 4), tt_rank=2, batch_shape=(3,),
+    tt_a = random_.tensor(rng1, (2, 1, 3, 4), tt_rank=2, batch_shape=(3,),
                           dtype=dtype)
-    tt_b = random_.tensor(rng2, (1, 2, 3, 4), tt_rank=[1, 1, 4, 3, 1],
+    tt_b = random_.tensor(rng2, (2, 1, 3, 4), tt_rank=[1, 2, 4, 3, 1],
                           batch_shape=(3,), dtype=dtype)
 
     res_actual1 = ops.full(ops.add(tt_a, tt_b))
@@ -203,11 +203,9 @@ class TTMatrixTest(jtu.JaxTestCase):
     # Add two TT-matrices.
     rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
     dtype = jnp.float32
-    left_shape = (2, 3, 4)
-    right_shape = (4, 4, 4)
-    tt_a = random_.matrix(rng1, (left_shape, right_shape), tt_rank=3,
+    tt_a = random_.matrix(rng1, ((2, 1, 4), None), tt_rank=2,
                           dtype=dtype)
-    tt_b = random_.matrix(rng2, (left_shape, right_shape), tt_rank=[1, 4, 3, 1],
+    tt_b = random_.matrix(rng2, ((2, 1, 4), None), tt_rank=[1, 2, 4, 1],
                           dtype=dtype)
 
     res_actual1 = ops.full(ops.add(tt_a, tt_b))
@@ -220,11 +218,9 @@ class TTMatrixTest(jtu.JaxTestCase):
     # Add two batches of TT-matrices.
     rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
     dtype = jnp.float32
-    left_shape = (2, 3, 4)
-    right_shape = (4, 4, 4)
-    tt_a = random_.matrix(rng1, (left_shape, right_shape), tt_rank=3,
+    tt_a = random_.matrix(rng1, ((2, 1, 4), None), tt_rank=2,
                           batch_shape=(3,), dtype=dtype)
-    tt_b = random_.matrix(rng2, (left_shape, right_shape), tt_rank=[1, 4, 3, 1],
+    tt_b = random_.matrix(rng2, ((2, 1, 4), None), tt_rank=[1, 2, 4, 1],
                           batch_shape=(3,), dtype=dtype)
 
     res_actual1 = ops.full(ops.add(tt_a, tt_b))
