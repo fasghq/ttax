@@ -136,7 +136,6 @@ tt_vmap()
 def add(tt_a, tt_b):
   """Returns a TensorTrain corresponding to elementwise sum tt_a + tt_b.
   The shapes of tt_a and tt_b should coincide.
-  Supports broadcasting:
   Supports broadcasting, e.g. you can add a tensor train with
   batch size 7 and a tensor train with batch size 1:
   tt_batch.add(tt_single.batch_loc[np.newaxis])
