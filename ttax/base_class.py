@@ -101,7 +101,6 @@ class TT(TTBase):
       new_tt_cores[-1] = jnp.einsum('...aib,...bd->...aid', 
                                     new_tt_cores[-1], remainder)
       remainder = None
-    # TODO: infer the output ranks and shape.
     return TT(new_tt_cores)
 
 
@@ -130,19 +129,20 @@ class TTMatrix(TTBase):
     return True
   
   def __getitem__(self, slice_spec):
-
-    n = self.ndim
-    if len(slice_spec) != 2 * n:
-      raise ValueError('Expected %d indices, got %d' % (2 * n, len(slice_spec)))
-    for i in range(n):
-      if isinstance(slice_spec[i], slice) != isinstance(slice_spec[n+i], slice):
-        raise ValueError('Elements i_%d and j_%d should be the same type.' % (i,
-                                                                            i))
+    """Basic indexing, returns a TTMatrix containing the specified region."""
+    d = self.ndim
+    if len(slice_spec) != 2 * d:
+      raise ValueError('Expected %d indices, got %d' % (2 * d, len(slice_spec)))
+    for i in range(d):
+      if isinstance(slice_spec[i], slice) != isinstance(slice_spec[d+i], slice):
+        raise ValueError('Elements i_%d and j_%d should be the same type, '
+                         'instead: %s and %s.' % (i, i, slice_spec[i], 
+                                                  slice_spec[n+i]))
     new_tt_cores = []
     remainder = None
     for i in range(self.ndim):
       curr_core = self.tt_cores[i]
-      sliced_core = curr_core[..., :, slice_spec[i], slice_spec[n+i], :]
+      sliced_core = curr_core[..., :, slice_spec[i], slice_spec[d+i], :]
       if len(curr_core.shape) != len(sliced_core.shape):
         # These indices are specified exactly and we want to collapse this axis.
         if remainder is None:
@@ -168,19 +168,19 @@ class TTMatrix(TTBase):
 
 class BatchIndexing:
   def __init__(self, tt):
-    self.tt = tt
+    self._tt = tt
 
   def __getitem__(self, indices: list):
     non_none_indices = [idx for idx in indices if idx is not None]
-    if len(non_none_indices) > self.tt.tt_num_batch_dims:
-      raise ValueError('Expected %d indices, got %d' % (self.tt.num_batch_dims,
+    if len(non_none_indices) > self._tt.tt_num_batch_dims:
+      raise ValueError('Expected %d indices, got %d' % (self._tt.num_batch_dims,
                                                         len(non_none_indices)))
     new_cores = []
-    for core_idx in range(self.tt.ndim):
-      curr_core = self.tt.tt_cores[core_idx]
+    for core_idx in range(self._tt.ndim):
+      curr_core = self._tt.tt_cores[core_idx]
       new_cores.append(curr_core.__getitem__(indices))
 
-    if self.tt.is_tt_matrix:
+    if self._tt.is_tt_matrix:
       return TTMatrix(new_cores)
     else:
       return TT(new_cores)
