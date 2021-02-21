@@ -203,31 +203,35 @@ class TTMatrixTest(jtu.JaxTestCase):
     # Add two TT-matrices.
     rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
     dtype = jnp.float32
-    tt_a = random_.matrix(rng1, (2, 1, 4, 3, 2, 1, 4, 3), tt_rank=2,
+    left_shape = (2, 3, 4)
+    right_shape = (4, 4, 4)
+    tt_a = random_.matrix(rng1, (left_shape, right_shape), tt_rank=3,
                           dtype=dtype)
-    tt_b = random_.matrix(rng2, (2, 1, 4, 3, 2, 1, 4, 3), tt_rank=[1, 2, 4, 1],
+    tt_b = random_.matrix(rng2, (left_shape, right_shape), tt_rank=[1, 4, 3, 1],
                           dtype=dtype)
 
     res_actual1 = ops.full(ops.add(tt_a, tt_b))
     res_actual2 = ops.full(tt_a + tt_b)
     res_desired = ops.full(tt_a) + ops.full(tt_b)
-    self.assertAllClose(res_actual1, res_desired, rtol=1e-4)
-    self.assertAllClose(res_actual2, res_desired, rtol=1e-4)
+    self.assertAllClose(res_actual1, res_desired, rtol=1e-3)
+    self.assertAllClose(res_actual2, res_desired, rtol=1e-3)
 
   def testAddBatch(self):
     # Add two batches of TT-matrices.
     rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
     dtype = jnp.float32
-    tt_a = random_.matrix(rng1, (2, 1, 4, 3, 2, 1, 4, 3), tt_rank=2,
-                          batch_shape=(3,), dtype=dtype)
-    tt_b = random_.matrix(rng2, (2, 1, 4, 3, 2, 1, 4, 3), tt_rank=[1, 2, 4, 1],
-                          batch_shape=(3,), dtype=dtype)
+    left_shape = (2, 3, 4)
+    right_shape = (4, 4, 4)
+    tt_a = random_.matrix(rng1, (left_shape, right_shape), tt_rank=3,
+                          dtype=dtype)
+    tt_b = random_.matrix(rng2, (left_shape, right_shape), tt_rank=[1, 4, 3, 1],
+                          dtype=dtype)
 
     res_actual1 = ops.full(ops.add(tt_a, tt_b))
     res_actual2 = ops.full(tt_a + tt_b)
     res_desired = ops.full(tt_a) + ops.full(tt_b)
-    self.assertAllClose(res_actual1, res_desired, rtol=1e-4)
-    self.assertAllClose(res_actual2, res_desired, rtol=1e-4)  
+    self.assertAllClose(res_actual1, res_desired, rtol=1e-3)
+    self.assertAllClose(res_actual2, res_desired, rtol=1e-3)  
     
 
 if __name__ == '__main__':
