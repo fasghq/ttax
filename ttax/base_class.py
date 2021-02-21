@@ -137,7 +137,7 @@ class TTMatrix(TTBase):
       if isinstance(slice_spec[i], slice) != isinstance(slice_spec[d+i], slice):
         raise ValueError('Elements i_%d and j_%d should be the same type, '
                          'instead: %s and %s.' % (i, i, slice_spec[i], 
-                                                  slice_spec[n+i]))
+                                                  slice_spec[d+i]))
     new_tt_cores = []
     remainder = None
     for i in range(self.ndim):
