@@ -81,7 +81,7 @@ class TT(TTBase):
     remainder = None
     for i in range(self.ndim):
       curr_core = self.tt_cores[i]
-      sliced_core = curr_core[:, slice_spec[i], :]
+      sliced_core = curr_core[..., :, slice_spec[i], slice_spec[n+i], :]
       if len(curr_core.shape) != len(sliced_core.shape):
         # This index is specified exactly and we want to collapse this axis.
         if remainder is None:
@@ -91,13 +91,15 @@ class TT(TTBase):
       else:
         if remainder is not None:
           # Add reminder from the previous collapsed cores to the current core.
-          sliced_core = jnp.einsum('ab,bid->aid', remainder, sliced_core)
+          sliced_core = jnp.einsum('...ab,...bijd->...aijd', 
+                                   remainder, sliced_core)
           remainder = None
         new_tt_cores.append(sliced_core)
 
     if remainder is not None:
       # The reminder obtained from collapsing the last cores.
-      new_tt_cores[-1] = jnp.einsum('aib,bd->aid', new_tt_cores[-1], remainder)
+      new_tt_cores[-1] = jnp.einsum('...aijb,...bd->...aijd', 
+                                    new_tt_cores[-1], remainder)
       remainder = None
     # TODO: infer the output ranks and shape.
     return TT(new_tt_cores)
@@ -126,6 +128,42 @@ class TTMatrix(TTBase):
   @property
   def is_tt_matrix(self):
     return True
+  
+  def __getitem__(self, slice_spec):
+
+    n = self.ndim
+    if len(slice_spec) != 2 * n:
+      raise ValueError('Expected %d indices, got %d' % (2 * n, len(slice_spec)))
+    for i in range(n):
+      if isinstance(slice_spec[i], slice) != isinstance(slice_spec[n+i], slice):
+        raise ValueError('Elements i_%d and j_%d should be the same type.' % (i,
+                                                                            i))
+    new_tt_cores = []
+    remainder = None
+    for i in range(self.ndim):
+      curr_core = self.tt_cores[i]
+      sliced_core = curr_core[..., :, slice_spec[i], slice_spec[n+i], :]
+      if len(curr_core.shape) != len(sliced_core.shape):
+        # These indices are specified exactly and we want to collapse this axis.
+        if remainder is None:
+          remainder = sliced_core
+        else:
+          remainder = jnp.matmul(remainder, sliced_core)
+      else:
+        if remainder is not None:
+          # Add reminder from the previous collapsed cores to the current core.
+          sliced_core = jnp.einsum('...ab,...bijd->...aijd', 
+                                   remainder, sliced_core)
+          remainder = None
+        new_tt_cores.append(sliced_core)
+
+    if remainder is not None:
+      # The reminder obtained from collapsing the last cores.
+      new_tt_cores[-1] = jnp.einsum('...aijb,...bd->...aijd', 
+                                    new_tt_cores[-1], remainder)
+      remainder = None
+
+    return TTMatrix(new_tt_cores)
 
 
 class BatchIndexing:
