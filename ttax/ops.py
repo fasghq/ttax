@@ -136,8 +136,11 @@ def add(tt_a, tt_b):
   """Returns a TensorTrain corresponding to elementwise sum tt_a + tt_b.
   The shapes of tt_a and tt_b should coincide.
   Supports broadcasting:
-    add(TensorTrainBatch, TensorTrain)
-  adds TensorTrain to each element in the batch of TTs in TensorTrainBatch.
+  Supports broadcasting, e.g. you can add a tensor train with
+  batch size 7 and a tensor train with batch size 1:
+  tt_batch.add(tt_single.batch_loc[np.newaxis])
+  where tt_single.batch_loc[np.newaxis] 
+  creates a singleton batch dimension.
   Args:
     tt_a: TT or TT-Matrix
     tt_b: TT or TT-Matrix
@@ -149,11 +152,10 @@ def add(tt_a, tt_b):
   if not are_shapes_equal(tt_a, tt_b):
     raise ValueError('Types of the arguments or their tensor '
                      'shapes are different, addition is not '
-                     ' available.')
+                     'available.')
   if not are_batches_broadcastable(tt_a, tt_b):
     raise ValueError('The batch sizes are different and not 1, '
                      'broadcasting is not available.')
-  # batches are not supported yet
 
   if tt_a.is_tt_matrix:
     tt_cores = _add_matrix_cores(tt_a, tt_b)
