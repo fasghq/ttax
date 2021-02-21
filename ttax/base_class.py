@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 import numpy as np
 import jax.numpy as jnp
 import flax
@@ -33,6 +33,10 @@ class TTBase:
   @property
   def ndim(self):
     return len(self.tt_cores)
+
+  @property
+  def dtype(self):
+    return self.tt_cores[0].dtype
 
 
 @flax.struct.dataclass
@@ -76,3 +80,6 @@ class TTMatrix(TTBase):
   @property
   def is_tt_matrix(self):
     return True
+
+
+TTTensOrMat = Union[TT, TTMatrix]
