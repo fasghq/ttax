@@ -34,7 +34,7 @@ def tt_vmap(num_batch_args=None):
       else:
         if num_batch_args is not None:
           num_non_batch_args = len(args) + len(kwargs) - num_batch_args
-          in_axis = [0] * num_batch_args + [None] *  num_non_batch_args
+          in_axis = [0] * num_batch_args + [None] * num_non_batch_args
         else:
           in_axis = 0
         # Vmap everything num_batch_dims times.
