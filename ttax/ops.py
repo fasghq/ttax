@@ -132,6 +132,7 @@ def matmul(a, b):
   return func(a, b)
 
 
+tt_vmap()
 def add(tt_a, tt_b):
   """Returns a TensorTrain corresponding to elementwise sum tt_a + tt_b.
   The shapes of tt_a and tt_b should coincide.
