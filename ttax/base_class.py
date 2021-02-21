@@ -81,7 +81,7 @@ class TT(TTBase):
     remainder = None
     for i in range(self.ndim):
       curr_core = self.tt_cores[i]
-      sliced_core = curr_core[..., :, slice_spec[i], slice_spec[n+i], :]
+      sliced_core = curr_core[..., :, slice_spec[i], :]
       if len(curr_core.shape) != len(sliced_core.shape):
         # This index is specified exactly and we want to collapse this axis.
         if remainder is None:
@@ -91,14 +91,14 @@ class TT(TTBase):
       else:
         if remainder is not None:
           # Add reminder from the previous collapsed cores to the current core.
-          sliced_core = jnp.einsum('...ab,...bijd->...aijd', 
+          sliced_core = jnp.einsum('...ab,...bid->...aid', 
                                    remainder, sliced_core)
           remainder = None
         new_tt_cores.append(sliced_core)
 
     if remainder is not None:
       # The reminder obtained from collapsing the last cores.
-      new_tt_cores[-1] = jnp.einsum('...aijb,...bd->...aijd', 
+      new_tt_cores[-1] = jnp.einsum('...aib,...bd->...aid', 
                                     new_tt_cores[-1], remainder)
       remainder = None
     # TODO: infer the output ranks and shape.
