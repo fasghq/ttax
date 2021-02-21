@@ -6,6 +6,7 @@ from ttax.base_class import TT
 from ttax.base_class import TTMatrix
 
 
+@tt_vmap()
 def round(tt, max_tt_rank=None, epsilon=None):
   """TT-rounding procedure, returns a TT object with smaller TT-ranks.
   Args:
