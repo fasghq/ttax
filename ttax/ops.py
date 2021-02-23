@@ -170,7 +170,7 @@ def _add_tensor_cores(tt_a, tt_b):
   Does the actual assembling of the TT-cores to add two TT-tensors.
   """
   num_dims = tt_a.ndim
-  shape = tt_a.raw_tensor_shape
+  shape = tt_a.shape
   a_ranks = tt_a.tt_ranks
   b_ranks = tt_b.tt_ranks
   tt_cores = []
