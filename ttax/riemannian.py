@@ -6,6 +6,7 @@ import jax.numpy as jnp
 from ttax.base_class import TT
 from ttax.base_class import TTMatrix
 from ttax.base_class import TTTensOrMat
+from ttax import compile
 from ttax.ops import tt_vmap
 from ttax.decompositions import orthogonalize
 
@@ -111,3 +112,45 @@ def deltas_to_tangent(deltas: List[jnp.ndarray],
     return TTMatrix(cores)
   else:
     return TT(cores)
+
+
+def project(what, where):
+  # TODO: Use I_OR_IJ
+  projection_rhs_einsum = compile.TTEinsum(
+      inputs=[['a', 'i', 'b'], ['c', 'i', 'd'], ['b', 'd']],  output=['a', 'c'],
+      order='right-to-left',
+      how_to_apply='cumulative'
+  )
+  projection_rhs = compile.to_function(projection_rhs_einsum)
+
+  projection_lhs_einsum = compile.TTEinsum(
+      inputs=[['a', 'i', 'b'], ['c', 'i', 'd'], ['a', 'c']],  output=['b', 'd'],
+      how_to_apply='cumulative'
+  )
+  projection_lhs = compile.to_function(projection_lhs_einsum)
+
+  project_1_einsum = compile.TTEinsum(
+      inputs=[['a', 'b'], ['b', 'i', 'c']],  output=['a', 'i', 'c'],
+      how_to_apply='independent'
+  )
+  project_1 = compile.to_function(project_1_einsum)
+
+  project_2_einsum = compile.TTEinsum(
+      inputs=[['a', 'i', 'b'], ['b', 'c']],  output=['a', 'i', 'c'],
+      how_to_apply='independent'
+  )
+  project_2 = compile.to_function(project_2_einsum)
+
+  left = orthogonalize(where)
+  right = orthogonalize(left, left_to_right=False)
+  rhs = projection_rhs(what, right)
+  lhs = projection_lhs(left, what)
+  # TODO: we need something like raw_independent_project that would support a
+  #  list of tensors instead of actual TT-cores.
+  proj_a = project_1(lhs[:-1], what.tt_cores[:-1])
+  # print(left_tangent_space_tens.tt_cores, rhs)
+  proj_b = project_2(left.tt_cores[:-1], lhs[1:])
+  proj_deltas = [a - b for a, b in zip(proj_a, proj_b)]
+  proj_deltas = project_2(proj_deltas, rhs[1:])
+  # TODO: pass left and right to deltas_to_tangent?
+  return deltas_to_tangent(proj_deltas, where)

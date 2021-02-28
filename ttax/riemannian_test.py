@@ -38,6 +38,16 @@ class TTTensorTest(jtu.JaxTestCase):
     for desired_d, actual_d in zip(deltas, back_translated_deltas):
       self.assertAllClose(desired_d, actual_d)
 
+  def testProject(self):
+    np.random.seed(1)
+    rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
+    dtype = jnp.float32
+    what = random_.tensor(rng1, (10, 10, 10), tt_rank=10, dtype=dtype)
+    where = random_.tensor(rng2, (10, 10, 10), tt_rank=10, dtype=dtype)
+    projected = riemannian.project(what, where)
+    double_projected = riemannian.project(what, where)
+    self.assertAllClose(ops.full(projected), ops.full(double_projected))
+
 
 if __name__ == '__main__':
   absltest.main(testLoader=jtu.JaxTestLoader())

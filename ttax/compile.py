@@ -103,10 +103,11 @@ class WrappedTT:
 
 class TTEinsum:
 
-  def __init__(self, inputs, output, how_to_apply):
+  def __init__(self, inputs, output, how_to_apply, order='left-to-right'):
     self.inputs = inputs
     self.output = output
     self.how_to_apply = how_to_apply
+    self.order = order  # TODO: actually support this.
 
     if how_to_apply not in ['independent', 'cumulative']:
       raise ValueError('Unsupported "how_to_apply" type "%s"' % how_to_apply)
