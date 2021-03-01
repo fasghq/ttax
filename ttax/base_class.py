@@ -66,7 +66,7 @@ class TT(TTBase):
     return [c.shape[self.axis_dim] for c in self.tt_cores]
   
   def __getitem__(self, slice_spec):
-    """Basic indexing, returns a TT containing the specified region.
+    """Basic indexing, returns a TT containing the specified element / slice.
     Examples:
       >>> a = ttax.random.tensor(rng, [2, 3, 4])
       >>> a[1, :, :]
@@ -129,7 +129,7 @@ class TTMatrix(TTBase):
     return True
   
   def __getitem__(self, slice_spec):
-    """Basic indexing, returns a TTMatrix containing the specified region."""
+    """Basic indexing, returns a TTMatrix containing the specified element / slice."""
     d = self.ndim
     if len(slice_spec) != 2 * d:
       raise ValueError('Expected %d indices, got %d' % (2 * d, len(slice_spec)))
