@@ -92,7 +92,7 @@ class TTTensorTest(jtu.JaxTestCase):
     self.assertAllClose(res_actual1, res_desired)
     self.assertAllClose(res_actual2, res_desired)
 
-  def testAddBatch(self):
+  def testAddSameBatchSize(self):
     # Add two batches of TT-tensors.
     rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
     dtype = jnp.float32
@@ -103,6 +103,21 @@ class TTTensorTest(jtu.JaxTestCase):
 
     res_actual1 = ops.full(ops.add(tt_a, tt_b))
     res_actual2 = ops.full(tt_a + tt_b)
+    res_desired = ops.full(tt_a) + ops.full(tt_b)
+    self.assertAllClose(res_actual1, res_desired)
+    self.assertAllClose(res_actual2, res_desired)
+    
+  def testAddBroadcasting(self):
+    # Sum two TT-tensors with broadcasting.
+    rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
+    dtype = jnp.float32
+    tt_a = random_.tensor(rng1, (2, 1, 4), tt_rank=2, 
+                          batch_shape=(1,), dtype=dtype)
+    tt_b = random_.tensor(rng2, (2, 1, 4), tt_rank=[1, 2, 4, 1],
+                          batch_shape=(3,), dtype=dtype)
+    
+    res_actual1 = ops.full(ops.add(tt_a, tt_b))
+    res_actual2 = ops.full(tt_b + tt_a)
     res_desired = ops.full(tt_a) + ops.full(tt_b)
     self.assertAllClose(res_actual1, res_desired)
     self.assertAllClose(res_actual2, res_desired)
@@ -213,8 +228,8 @@ class TTMatrixTest(jtu.JaxTestCase):
     res_actual1 = ops.full(ops.add(tt_a, tt_b))
     res_actual2 = ops.full(tt_a + tt_b)
     res_desired = ops.full(tt_a) + ops.full(tt_b)
-    self.assertAllClose(res_actual1, res_desired, rtol=1e-3)
-    self.assertAllClose(res_actual2, res_desired, rtol=1e-3)
+    self.assertAllClose(res_actual1, res_desired, rtol=1e-5)
+    self.assertAllClose(res_actual2, res_desired, rtol=1e-5)
 
   def testAddBatch(self):
     # Add two batches of TT-matrices.
@@ -223,9 +238,9 @@ class TTMatrixTest(jtu.JaxTestCase):
     left_shape = (2, 3, 4)
     right_shape = (4, 4, 4)
     tt_a = random_.matrix(rng1, (left_shape, right_shape), tt_rank=3,
-                          dtype=dtype)
+                          batch_shape=(3,), dtype=dtype)
     tt_b = random_.matrix(rng2, (left_shape, right_shape), tt_rank=[1, 4, 3, 1],
-                          dtype=dtype)
+                          batch_shape=(3,), dtype=dtype)
 
     res_actual1 = ops.full(ops.add(tt_a, tt_b))
     res_actual2 = ops.full(tt_a + tt_b)
