@@ -24,6 +24,8 @@ def tt_vmap(num_batch_args=None):
     mapped over is shown by num_batch_dims property and should be 
     the same for all args of the function, by which it will be mapped over. 
     Otherwise such axis should be specified by num_batch_args.
+    Broadcasting case (when several axis of batches equal to 1) is
+    supported.
   """
   def tt_vmap_fixed_batching_pattern(func):
     @functools.wraps(func)
@@ -34,14 +36,44 @@ def tt_vmap(num_batch_args=None):
       else:
         if num_batch_args is not None:
           num_non_batch_args = len(args) + len(kwargs) - num_batch_args
-          in_axis = [0] * num_batch_args + [None] *  num_non_batch_args
+          in_axis = [0] * num_batch_args + [None] * num_non_batch_args
         else:
-          in_axis = 0
-        # Vmap everything num_batch_dims times.
+          in_axis = [0] * (len(args) + len(kwargs))
+        broadcasting_case = False
+        if len(in_axis) > 1 and (isinstance(args[1], TTMatrix) or
+                                 isinstance(args[1], TT)):
+          if args[0].is_tt_matrix != args[1].is_tt_matrix:
+            raise ValueError('Types of the arguments are different.')
+          if not are_batches_broadcastable(args[0], args[1]):
+            raise ValueError('The batch sizes are different and not 1, '
+                             'broadcasting is not available.')
+          broadcast_shape = np.maximum(list(args[0].batch_shape), 
+                                       list(args[1].batch_shape))
+          new_args = []
+          broadcasting_case = True
+          if args[0].is_tt_matrix:
+            for tt in args[:2]:
+              new_cores = []
+              for core in tt.tt_cores:
+                core = jnp.broadcast_to(core, list(broadcast_shape) +
+                                              list(core.shape[-4:]))
+                new_cores.append(core)
+              new_args.append(TTMatrix(new_cores))
+          else:
+            for tt in args[:2]:
+              new_cores = []
+              for core in tt.tt_cores:
+                core = jnp.broadcast_to(core, list(broadcast_shape) + 
+                                              list(core.shape[-3:]))
+                new_cores.append(core)
+              new_args.append(TT(new_cores)) 
         vmapped = func
         for _ in range(tt_arg.num_batch_dims):
             vmapped = jax.vmap(vmapped, in_axis)
-        return vmapped(*args, **kwargs)
+        if broadcasting_case:
+          return vmapped(*new_args, **kwargs)
+        else:
+          return vmapped(*args, **kwargs)
     return vectorized_func
   return tt_vmap_fixed_batching_pattern
 
