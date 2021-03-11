@@ -163,3 +163,26 @@ def matmul(a, b):
   )
   func = to_function(tt_einsum)
   return func(a, b)
+
+
+def are_batches_broadcastable(tt_a, tt_b):
+  """Returns the result of compatibility check of 2 tensors' batches: 
+  True if batches are compatible and False otherwise.
+  The batch sizes should be equal otherwise at least one of them 
+  should equal to 1 for broadcasting to be available.
+  Args:
+    tt_a: TT or TT-Matrix
+    tt_b: TT or TT-Matrix
+  Returns:
+    batch_check: bool
+  """
+  batch_check = True
+  if tt_a.num_batch_dims != tt_b.num_batch_dims:
+    return False
+  else:
+    for a, b in zip(tt_a.batch_shape, tt_b.batch_shape):
+      if a == 1 or b == 1 or a == b:
+        pass
+      else:
+        batch_check = False
+  return batch_check
