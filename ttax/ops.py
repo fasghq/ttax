@@ -1,6 +1,7 @@
 import functools
 import jax
 import jax.numpy as jnp
+import numpy as np
 
 from ttax.base_class import TTBase
 from ttax.base_class import TT
