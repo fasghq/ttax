@@ -4,6 +4,7 @@ import jax.numpy as jnp
 
 from ttax.base_class import TT
 from ttax.base_class import TTMatrix
+from ttax.ops import tt_vmap
 
 
 @tt_vmap()
