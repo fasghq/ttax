@@ -162,6 +162,116 @@ def matmul(a, b):
   return func(a, b)
 
 
+@tt_vmap()
+def add(tt_a, tt_b):
+  """Returns a TensorTrain corresponding to elementwise sum tt_a + tt_b.
+  The shapes of tt_a and tt_b should coincide.
+  Supports broadcasting, e.g. you can add a tensor train with
+  batch size 7 and a tensor train with batch size 1:
+  tt_batch.add(tt_single.batch_loc[np.newaxis])
+  where tt_single.batch_loc[np.newaxis] 
+  creates a singleton batch dimension.
+  Args:
+    tt_a: TT or TT-Matrix
+    tt_b: TT or TT-Matrix
+  Returns
+    TT or TT-Matrix
+  Raises
+    ValueError if the arguments shapes do not coincide.
+  """
+  if not are_shapes_equal(tt_a, tt_b):
+    raise ValueError('Types of the arguments or their tensor '
+                     'shapes are different, addition is not '
+                     'available.')
+  if not are_batches_broadcastable(tt_a, tt_b):
+    raise ValueError('The batch sizes are different and not 1, '
+                     'broadcasting is not available.')
+
+  if tt_a.is_tt_matrix:
+    tt_cores = _add_matrix_cores(tt_a, tt_b)
+    return TTMatrix(tt_cores)
+  else:
+    tt_cores = _add_tensor_cores(tt_a, tt_b)
+    return TT(tt_cores)
+
+
+def _add_tensor_cores(tt_a, tt_b):
+  """Internal function to be called from add for two TT-tensors.
+  Does the actual assembling of the TT-cores to add two TT-tensors.
+  """
+  num_dims = tt_a.ndim
+  shape = tt_a.shape
+  a_ranks = tt_a.tt_ranks
+  b_ranks = tt_b.tt_ranks
+  tt_cores = []
+  for core_idx in range(num_dims):
+    a_core = tt_a.tt_cores[core_idx]
+    b_core = tt_b.tt_cores[core_idx]
+    if core_idx == 0:
+      curr_core = jnp.concatenate((a_core, b_core), axis=2)
+    elif core_idx == num_dims - 1:
+      curr_core = jnp.concatenate((a_core, b_core), axis=0)
+    else:
+      upper_zeros = jnp.zeros((a_ranks[core_idx], shape[core_idx],
+                              b_ranks[core_idx + 1]))
+      lower_zeros = jnp.zeros((b_ranks[core_idx], shape[core_idx],
+                              a_ranks[core_idx + 1]))
+      upper = jnp.concatenate((a_core, upper_zeros), axis=2)
+      lower = jnp.concatenate((lower_zeros, b_core), axis=2)
+      curr_core = jnp.concatenate((upper, lower), axis=0)
+    tt_cores.append(curr_core)
+  return tt_cores
+
+
+def _add_matrix_cores(tt_a, tt_b):
+  """Internal function to be called from add for two TT-matrices.
+  Does the actual assembling of the TT-cores to add two TT-matrices.
+  """
+  num_dims = tt_a.ndim
+  shape = tt_a.raw_tensor_shape
+  a_ranks = tt_a.tt_ranks
+  b_ranks = tt_b.tt_ranks
+  tt_cores = []
+  for core_idx in range(num_dims):
+    a_core = tt_a.tt_cores[core_idx]
+    b_core = tt_b.tt_cores[core_idx]
+    if core_idx == 0:
+      curr_core = jnp.concatenate((a_core, b_core), axis=3)
+    elif core_idx == num_dims - 1:
+      curr_core = jnp.concatenate((a_core, b_core), axis=0)
+    else:
+      upper_zeros = jnp.zeros((a_ranks[core_idx], shape[0][core_idx],
+                              shape[1][core_idx], b_ranks[core_idx + 1]))
+      lower_zeros = jnp.zeros((b_ranks[core_idx], shape[0][core_idx],
+                              shape[1][core_idx], a_ranks[core_idx + 1]))
+      upper = jnp.concatenate((a_core, upper_zeros), axis=3)
+      lower = jnp.concatenate((lower_zeros, b_core), axis=3)
+      curr_core = jnp.concatenate((upper, lower), axis=0)
+    tt_cores.append(curr_core)
+  return tt_cores
+
+
+def are_shapes_equal(tt_a, tt_b):
+  """Returns the result of equality check of 2 tensors' shapes: 
+  True if shapes are equal and False otherwise.
+  The arguments should be both TT-tensors or both TT-matrices.
+  The arguments should have the same tensor shape
+  but potentially different TT-ranks.
+  Args:
+    tt_a: TT or TT-Matrix
+    tt_b: TT or TT-Matrix
+  Returns:
+    tensor_check: bool
+  """
+  tensor_check = True
+  if tt_a.is_tt_matrix != tt_b.is_tt_matrix:
+    tensor_check = False
+  if jnp.any(jnp.array(tt_a.raw_tensor_shape) != 
+            jnp.array(tt_b.raw_tensor_shape)):
+    tensor_check = False
+  return tensor_check
+
+
 def are_batches_broadcastable(tt_a, tt_b):
   """Returns the result of compatibility check of 2 tensors' batches: 
   True if batches are compatible and False otherwise.
