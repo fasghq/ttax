@@ -35,13 +35,42 @@ def tt_vmap(num_batch_args=None):
         if num_batch_args is not None:
           num_non_batch_args = len(args) + len(kwargs) - num_batch_args
           in_axis = [0] * num_batch_args + [None] * num_non_batch_args
+          num_args = num_batch_args
         else:
-          in_axis = 0
-        # Vmap everything num_batch_dims times.
+          num_args = len(args) + len(kwargs)
+          in_axis = [0] * num_args
+        if num_args > 1 and (isinstance(args[1], TTMatrix) or
+                                 isinstance(args[1], TT)):
+          if args[0].is_tt_matrix != args[1].is_tt_matrix:
+            raise ValueError('Types of the arguments are different.')
+          if not are_batches_broadcastable(args[0], args[1]):
+            raise ValueError('The batch sizes are different and not 1, '
+                             'broadcasting is not available.')
+          broadcast_shape = np.maximum(list(args[0].batch_shape), 
+                                       list(args[1].batch_shape))
+          new_args = list(args)
+          if args[0].is_tt_matrix:
+            for i, tt in enumerate(args[:2]):
+              new_cores = []
+              for core in tt.tt_cores:
+                core = jnp.broadcast_to(core, list(broadcast_shape) +
+                                              list(core.shape[-4:]))
+                new_cores.append(core)
+              new_args[i] = TTMatrix(new_cores)
+          else:
+            for i, tt in enumerate(args[:2]):
+              new_cores = []
+              for core in tt.tt_cores:
+                core = jnp.broadcast_to(core, list(broadcast_shape) + 
+                                              list(core.shape[-3:]))
+                new_cores.append(core)
+              new_args[i] = TT(new_cores)
+        else:
+          new_args = args
         vmapped = func
         for _ in range(tt_arg.num_batch_dims):
-            vmapped = jax.vmap(vmapped, in_axis)
-        return vmapped(*args, **kwargs)
+          vmapped = jax.vmap(vmapped, in_axis)
+        return vmapped(*new_args, **kwargs)
     return vectorized_func
   return tt_vmap_fixed_batching_pattern
 
@@ -251,15 +280,13 @@ def are_batches_broadcastable(tt_a, tt_b):
     tt_a: TT or TT-Matrix
     tt_b: TT or TT-Matrix
   Returns:
-    batch_check: bool
+    bool
   """
-  batch_check = True
   if tt_a.num_batch_dims != tt_b.num_batch_dims:
     return False
-  else:
-    for a, b in zip(tt_a.batch_shape, tt_b.batch_shape):
-      if a == 1 or b == 1 or a == b:
-        pass
-      else:
-        batch_check = False
-  return batch_check
+  for a, b in zip(tt_a.batch_shape, tt_b.batch_shape):
+    if a == 1 or b == 1 or a == b:
+      pass
+    else:
+      return False
+  return True
