@@ -45,7 +45,7 @@ class WrappedTT:
     self.tt_einsum = tt_einsum
 
   def __mul__(self, other):
-    return ops.multiply(self.tt, other)
+    return ops.multiply(self, other)
 
   def __matmul__(self, other):
     return ops.matmul(self, other)
