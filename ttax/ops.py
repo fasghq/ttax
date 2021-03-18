@@ -291,3 +291,15 @@ def are_batches_broadcastable(tt_a, tt_b):
     else:
       return False
   return True
+
+
+@tt_vmap(1)
+def mul_by_scalar(tt, c):
+  cores = list(tt.tt_cores)
+  cores[0] = jnp.multiply(cores[0], c)
+  if tt.is_tt_matrix:
+    return TTMatrix(cores)
+  else:
+    return TT(cores)
+
+
