@@ -7,6 +7,9 @@ from ttax.base_class import TTBase
 from ttax.base_class import TT
 from ttax.base_class import TTMatrix
 from ttax.compile import TTEinsum, to_function, I_OR_IJ
+from ttax.utils import is_tt_tensor
+from ttax.utils import is_tt_matrix
+from ttax.utils import is_tt_object
 
 
 def tt_vmap(num_batch_args=None):
@@ -294,14 +297,13 @@ def are_batches_broadcastable(tt_a, tt_b):
 
 
 def multiply(a, b):
-  if ((not (isinstance(a, TT) or isinstance(a, TTMatrix))) or
-        (not (isinstance(b, TT) or isinstance(b, TTMatrix)))):
+  if not is_tt_object(a) or not is_tt_object(b):
     return multiply_by_scalar(a, b)
   else:
     return tt_tt_multiply(a, b)
 
 def multiply_by_scalar(a, b):
-  if isinstance(a, TT) or isinstance(a, TTMatrix):
+  if is_tt_object(a):
     return _mul_by_scalar(a, b)
   else:
     return _mul_by_scalar(b, a)
