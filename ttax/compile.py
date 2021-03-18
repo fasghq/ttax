@@ -45,10 +45,7 @@ class WrappedTT:
     self.tt_einsum = tt_einsum
 
   def __mul__(self, other):
-    if not isinstance(self, WrappedTT) or not isinstance(other, WrappedTT):
-      return ops.mul_by_scalar(self.tt, other)
-    else:
-      return ops.multiply(self.tt, other)
+    return ops.multiply(self.tt, other)
 
   def __matmul__(self, other):
     return ops.matmul(self, other)

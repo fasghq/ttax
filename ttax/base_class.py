@@ -9,11 +9,7 @@ class TTBase:
   def __mul__(self, other):
     # We can't import ops in the beginning since it creates cyclic dependencies.
     from ttax import ops
-    if ((not (isinstance(self, TT) or isinstance(self, TTMatrix))) or
-        (not (isinstance(other, TT) or isinstance(other, TTMatrix)))):
-      return ops.mul_by_scalar(self, other)
-    else:
-      return ops.multiply(self, other)
+    return ops.multiply(self, other)
 
   def __matmul__(self, other):
     # We can't import ops in the beginning since it creates cyclic dependencies.

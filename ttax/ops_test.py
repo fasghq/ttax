@@ -122,27 +122,27 @@ class TTTensorTest(jtu.JaxTestCase):
     self.assertAllClose(res_actual1, res_desired)
     self.assertAllClose(res_actual2, res_desired)
 
-  def testMul_by_scalar(self):
+  def testMultiplyByScalar(self):
     # Multiply batch of TT-tensor by scalar.
     c = 4.5
     rng = jax.random.PRNGKey(0)
     dtype = jnp.float32
     tt = random_.tensor(rng, (2, 1, 3, 4), tt_rank=[1, 2, 4, 3, 1],
                         dtype=dtype)
-    res_actual1 = ops.full(ops.mul_by_scalar(tt, c))
+    res_actual1 = ops.full(ops.multiply(tt, c))
     res_actual2 = ops.full(tt * c)
     res_desired = jnp.multiply(ops.full(tt), c)
     self.assertAllClose(res_actual1, res_desired)
     self.assertAllClose(res_actual2, res_desired)
 
-  def testMul_by_scalarBatch(self):
+  def testMultiplyBatchByScalar(self):
     # Multiply batch of TT-tensor by scalar.
     c = 4.5
     rng = jax.random.PRNGKey(0)
     dtype = jnp.float32
     tt = random_.tensor(rng, (2, 1, 3, 4), tt_rank=[1, 2, 4, 3, 1],
                         batch_shape=(3,), dtype=dtype)
-    res_actual1 = ops.full(ops.mul_by_scalar(tt, c))
+    res_actual1 = ops.full(ops.multiply(tt, c))
     res_actual2 = ops.full(tt * c)
     res_desired = jnp.multiply(ops.full(tt), c)
     self.assertAllClose(res_actual1, res_desired)
@@ -291,7 +291,7 @@ class TTMatrixTest(jtu.JaxTestCase):
     self.assertAllClose(res_actual1, res_desired, rtol=1e-4)
     self.assertAllClose(res_actual2, res_desired, rtol=1e-4)
 
-  def testMul_by_scalar(self):
+  def testMultiplyByScalar(self):
     # Multiply TT-matrix by scalar.
     c = 4.5
     rng = jax.random.PRNGKey(0)
@@ -300,13 +300,13 @@ class TTMatrixTest(jtu.JaxTestCase):
     right_shape = (4, 4, 4)
     tt = random_.matrix(rng, (left_shape, right_shape), tt_rank=3,
                         dtype=dtype)
-    res_actual1 = ops.full(ops.mul_by_scalar(tt, c))
+    res_actual1 = ops.full(ops.multiply(tt, c))
     res_actual2 = ops.full(tt * c)
     res_desired = jnp.multiply(ops.full(tt), c)
     self.assertAllClose(res_actual1, res_desired, rtol=1e-4)  
     self.assertAllClose(res_actual2, res_desired, rtol=1e-4) 
 
-  def testMul_by_scalarBatch(self):
+  def testMultiplyBatchByScalar(self):
     # Multiply batch of TT-matrix by scalar.
     c = 4.5
     rng = jax.random.PRNGKey(0)
@@ -315,7 +315,7 @@ class TTMatrixTest(jtu.JaxTestCase):
     right_shape = (4, 4, 4)
     tt = random_.matrix(rng, (left_shape, right_shape), tt_rank=3,
                           batch_shape=(3, 1, 3,), dtype=dtype)
-    res_actual1 = ops.full(ops.mul_by_scalar(tt, c))
+    res_actual1 = ops.full(ops.multiply(tt, c))
     res_actual2 = ops.full(tt * c)
     res_desired = jnp.multiply(ops.full(tt), c)
     self.assertAllClose(res_actual1, res_desired, rtol=1e-4) 

@@ -130,7 +130,7 @@ def full(tt: TTBase) -> jnp.array:
     return full_tt_matrix(tt)
 
 
-def multiply(a, b):
+def tt_tt_multiply(a, b):
   tt_einsum = TTEinsum(
       inputs=[['a', I_OR_IJ, 'b'], ['c', I_OR_IJ, 'd']],
       output=['ac', I_OR_IJ, 'bd'],
@@ -293,13 +293,25 @@ def are_batches_broadcastable(tt_a, tt_b):
   return True
 
 
+def multiply(a, b):
+  if ((not (isinstance(a, TT) or isinstance(a, TTMatrix))) or
+        (not (isinstance(b, TT) or isinstance(b, TTMatrix)))):
+    return multiply_by_scalar(a, b)
+  else:
+    return tt_tt_multiply(a, b)
+
+def multiply_by_scalar(a, b):
+  if isinstance(a, TT) or isinstance(a, TTMatrix):
+    return _mul_by_scalar(a, b)
+  else:
+    return _mul_by_scalar(b, a)
+
+
 @tt_vmap(1)
-def mul_by_scalar(tt, c):
+def _mul_by_scalar(tt, c):
   cores = list(tt.tt_cores)
   cores[0] = jnp.multiply(cores[0], c)
   if tt.is_tt_matrix:
     return TTMatrix(cores)
   else:
     return TT(cores)
-
-
