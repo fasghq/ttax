@@ -132,8 +132,8 @@ class TTTensorTest(jtu.JaxTestCase):
     res_actual1 = ops.full(ops.multiply(tt, c))
     res_actual2 = ops.full(tt * c)
     res_desired = jnp.multiply(ops.full(tt), c)
-    self.assertAllClose(res_actual1, res_desired)
-    self.assertAllClose(res_actual2, res_desired)
+    self.assertAllClose(res_actual1, res_desired, rtol=1e-4)
+    self.assertAllClose(res_actual2, res_desired, rtol=1e-4)
 
   def testMultiplyBatchByScalar(self):
     # Multiply batch of TT-tensor by scalar.
@@ -145,8 +145,8 @@ class TTTensorTest(jtu.JaxTestCase):
     res_actual1 = ops.full(ops.multiply(tt, c))
     res_actual2 = ops.full(tt * c)
     res_desired = jnp.multiply(ops.full(tt), c)
-    self.assertAllClose(res_actual1, res_desired)
-    self.assertAllClose(res_actual2, res_desired)
+    self.assertAllClose(res_actual1, res_desired, rtol=1e-4)
+    self.assertAllClose(res_actual2, res_desired, rtol=1e-4)
 
 
 class TTMatrixTest(jtu.JaxTestCase):
