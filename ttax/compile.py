@@ -86,6 +86,14 @@ class WrappedTT:
   def dtype(self):
     return self.tt.dtype
 
+  @property
+  def raw_tensor_shape(self):
+    return self.tt.raw_tensor_shape
+
+  @property
+  def batch_loc(self):
+    return self.tt.batch_loc
+
 
 class TTEinsum:
 
