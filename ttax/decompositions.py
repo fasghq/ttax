@@ -7,7 +7,7 @@ from ttax.base_class import TTMatrix
 from ttax.ops import tt_vmap
 
 
-@tt_vmap
+@tt_vmap()
 def round(tt, max_tt_rank=None, epsilon=None):
   """TT-rounding procedure, returns a TT object with smaller TT-ranks.
   Args:
@@ -117,7 +117,7 @@ def orthogonalize(tt, left_to_right=True):
     tt: TT-tensor or TT-matrix.
     left_to_right: bool, the direction of orthogonalization.
   Returns:
-    TT-tensor or TT-matrix.orthogonalize_tt_cores
+    TT-tensor or TT-matrix.
   """
   if left_to_right:
     return _orthogonalize_tt_cores_left_to_right(tt)
