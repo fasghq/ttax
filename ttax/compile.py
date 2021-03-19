@@ -50,6 +50,9 @@ class WrappedTT:
   def __matmul__(self, other):
     return ops.matmul(self, other)
 
+  def __rmul__(self, other):
+    return ops.multiply(self, other)
+
   @property
   def tt_cores(self):
     return self.tt.tt_cores
