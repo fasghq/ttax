@@ -13,3 +13,7 @@ from ttax.decompositions import round
 from ttax.decompositions import orthogonalize
 
 from ttax import random_ as random
+
+from ttax.utils import is_tt_tensor
+from ttax.utils import is_tt_matrix
+from ttax.utils import is_tt_object
