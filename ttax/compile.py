@@ -50,6 +50,12 @@ class WrappedTT:
   def __matmul__(self, other):
     return ops.matmul(self, other)
 
+  def __add__(self, other):
+    return ops.add(self, other)
+
+  def __rmul__(self, other):
+    return ops.multiply(self, other)
+
   @property
   def tt_cores(self):
     return self.tt.tt_cores
@@ -349,3 +355,16 @@ def fuse(func):
     return res
 
   return _func
+
+
+def unwrap_tt(arg):
+  """Unwraps argument if it is of WrappedTT class, 
+     otherwise just returns the argument.
+  Argument: 
+    WrappedTT or TTTensOrMat
+  Returns:
+    TTTensOrMat
+  """
+  if isinstance(arg, WrappedTT):
+    return arg.tt
+  return arg

@@ -6,7 +6,12 @@ import numpy as np
 from ttax.base_class import TTBase
 from ttax.base_class import TT
 from ttax.base_class import TTMatrix
+from ttax.compile import WrappedTT
 from ttax.compile import TTEinsum, to_function, I_OR_IJ
+from ttax.compile import unwrap_tt
+from ttax.utils import is_tt_tensor
+from ttax.utils import is_tt_matrix
+from ttax.utils import is_tt_object
 
 
 def tt_vmap(num_batch_args=None):
@@ -130,7 +135,7 @@ def full(tt: TTBase) -> jnp.array:
     return full_tt_matrix(tt)
 
 
-def multiply(a, b):
+def tt_tt_multiply(a, b):
   tt_einsum = TTEinsum(
       inputs=[['a', I_OR_IJ, 'b'], ['c', I_OR_IJ, 'd']],
       output=['ac', I_OR_IJ, 'bd'],
@@ -179,6 +184,9 @@ def add(tt_a, tt_b):
   Raises
     ValueError if the arguments shapes do not coincide.
   """
+  tt_a = unwrap_tt(tt_a)
+  tt_b = unwrap_tt(tt_b)
+
   if not are_shapes_equal(tt_a, tt_b):
     raise ValueError('Types of the arguments or their tensor '
                      'shapes are different, addition is not '
@@ -291,3 +299,41 @@ def are_batches_broadcastable(tt_a, tt_b):
     else:
       return False
   return True
+
+
+def multiply(a, b):
+  """tt * tt or scalar * tt elementwise product.
+  Args:
+    a, b: Union[float, TTTensOrMat]
+  Returns:
+    TTTensOrMat
+  """
+  if not is_tt_object(a) or not is_tt_object(b):
+    return multiply_by_scalar(a, b)
+  else:
+    return tt_tt_multiply(a, b)
+
+
+def multiply_by_scalar(a, b):
+  """Returns the result of multiplication so called TT-object 
+  (TTTensOrMat or WrappedTT) by scalar. Takes 2 arguments 
+  as input, one of which is TT-object and other is a scalar. 
+  Does not depends on arguments order. 
+  Returns:yj
+    TTTensOrMat
+  """
+  if is_tt_object(a):
+    return _mul_by_scalar(a, b)
+  else:
+    return _mul_by_scalar(b, a)
+
+
+@tt_vmap(1)
+def _mul_by_scalar(tt, c):
+  tt = unwrap_tt(tt)
+  cores = list(tt.tt_cores)
+  cores[0] = c * cores[0]
+  if tt.is_tt_matrix:
+    return TTMatrix(cores)
+  else:
+    return TT(cores)
