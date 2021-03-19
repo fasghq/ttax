@@ -355,3 +355,16 @@ def fuse(func):
     return res
 
   return _func
+
+
+def unwrap_tt(arg):
+  """Unwraps argument if it is of WrappedTT class, 
+     otherwise just returns the argument.
+  Argument: 
+    WrappedTT or TTTensOrMat
+  Returns:
+    TTTensOrMat
+  """
+  if isinstance(arg, WrappedTT):
+    return arg.tt
+  return arg
