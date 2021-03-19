@@ -10,7 +10,7 @@ from ttax.ops import tt_vmap
 from ttax.decompositions import orthogonalize
 
 
-@tt_vmap
+@tt_vmap()
 def tangent_to_deltas(tangent_element: TTTensOrMat) -> List[jnp.ndarray]:
   """Convert an element of the tangent space to deltas representation.
   Tangent space elements (outputs of ttax.project) look like:
@@ -64,9 +64,9 @@ def deltas_to_tangent(deltas: List[jnp.ndarray],
   """Converts deltas representation of tangent space vector to TT object.
   Takes as input a list of [dP1, ..., dPd] and returns
     dP1 V2 ... Vd + U1 dP2 V3 ... Vd + ... + U1 ... Ud-1 dPd.
-  This function is hard to use correctly because deltas should abey the
-  so called gauge conditions. If the don't, the function will silently return
-  incorrect result. This is why this function is not imported in __init__.
+  This function is hard to use correctly because deltas should obey the
+  so called gauge conditions. If they don't, the function will silently return
+  incorrect result. That is why this function is not imported in __init__.
   Args:
       deltas: a list of deltas (essentially TT-cores) obeying the gauge
         conditions.
