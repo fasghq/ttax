@@ -302,6 +302,7 @@ def multiply(a, b):
   else:
     return tt_tt_multiply(a, b)
 
+
 def multiply_by_scalar(a, b):
   if is_tt_object(a):
     return _mul_by_scalar(a, b)
@@ -312,7 +313,7 @@ def multiply_by_scalar(a, b):
 @tt_vmap(1)
 def _mul_by_scalar(tt, c):
   cores = list(tt.tt_cores)
-  cores[0] = jnp.multiply(cores[0], c)
+  cores[0] = c * cores[0]
   if tt.is_tt_matrix:
     return TTMatrix(cores)
   else:

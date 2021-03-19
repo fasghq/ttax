@@ -131,9 +131,11 @@ class TTTensorTest(jtu.JaxTestCase):
                         dtype=dtype)
     res_actual1 = ops.full(ops.multiply(tt, c))
     res_actual2 = ops.full(tt * c)
-    res_desired = jnp.multiply(ops.full(tt), c)
+    res_actual3 = ops.full(c * tt)
+    res_desired = c * ops.full(tt)
     self.assertAllClose(res_actual1, res_desired, rtol=1e-4)
     self.assertAllClose(res_actual2, res_desired, rtol=1e-4)
+    self.assertAllClose(res_actual3, res_desired, rtol=1e-4)
 
   def testMultiplyBatchByScalar(self):
     # Multiply batch of TT-tensor by scalar.
@@ -144,9 +146,11 @@ class TTTensorTest(jtu.JaxTestCase):
                         batch_shape=(3,), dtype=dtype)
     res_actual1 = ops.full(ops.multiply(tt, c))
     res_actual2 = ops.full(tt * c)
-    res_desired = jnp.multiply(ops.full(tt), c)
+    res_actual3 = ops.full(c * tt)
+    res_desired = c * ops.full(tt)
     self.assertAllClose(res_actual1, res_desired, rtol=1e-4)
     self.assertAllClose(res_actual2, res_desired, rtol=1e-4)
+    self.assertAllClose(res_actual3, res_desired, rtol=1e-4)
 
 
 class TTMatrixTest(jtu.JaxTestCase):
@@ -302,9 +306,11 @@ class TTMatrixTest(jtu.JaxTestCase):
                         dtype=dtype)
     res_actual1 = ops.full(ops.multiply(tt, c))
     res_actual2 = ops.full(tt * c)
-    res_desired = jnp.multiply(ops.full(tt), c)
+    res_actual3 = ops.full(c * tt)
+    res_desired = c * ops.full(tt)
     self.assertAllClose(res_actual1, res_desired, rtol=1e-4)  
     self.assertAllClose(res_actual2, res_desired, rtol=1e-4) 
+    self.assertAllClose(res_actual3, res_desired, rtol=1e-4)
 
   def testMultiplyBatchByScalar(self):
     # Multiply batch of TT-matrix by scalar.
@@ -317,9 +323,11 @@ class TTMatrixTest(jtu.JaxTestCase):
                           batch_shape=(3, 1, 3,), dtype=dtype)
     res_actual1 = ops.full(ops.multiply(tt, c))
     res_actual2 = ops.full(tt * c)
-    res_desired = jnp.multiply(ops.full(tt), c)
+    res_actual3 = ops.full(c * tt)
+    res_desired = c * ops.full(tt)
     self.assertAllClose(res_actual1, res_desired, rtol=1e-4) 
-    self.assertAllClose(res_actual2, res_desired, rtol=1e-4)    
+    self.assertAllClose(res_actual2, res_desired, rtol=1e-4)  
+    self.assertAllClose(res_actual3, res_desired, rtol=1e-4)  
 
 
 if __name__ == '__main__':
