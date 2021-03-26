@@ -83,10 +83,14 @@ class WrappedTT:
   @property
   def tt_ranks(self):
     return self.tt.tt_ranks
-  
+
   @property
   def ndim(self):
     return self.tt.ndim
+
+  @property
+  def dtype(self):
+    return self.tt.dtype
 
   @property
   def raw_tensor_shape(self):

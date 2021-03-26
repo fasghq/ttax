@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 import numpy as np
 import jax.numpy as jnp
 import flax
@@ -45,8 +45,13 @@ class TTBase:
     return len(self.tt_cores)
 
   @property
+  def dtype(self):
+    return self.tt_cores[0].dtype
+
+  @property
   def batch_loc(self):
     return BatchIndexing(self)
+
 
 
 @flax.struct.dataclass
@@ -189,3 +194,5 @@ class BatchIndexing:
       return TTMatrix(new_cores)
     else:
       return TT(new_cores)
+
+TTTensOrMat = Union[TT, TTMatrix]
