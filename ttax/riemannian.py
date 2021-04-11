@@ -114,6 +114,7 @@ def deltas_to_tangent(deltas: List[jnp.ndarray],
     return TT(cores)
 
 
+@tt_vmap()  # TODO: don't need this once fully supported by einsum.
 def project(what, where):
   # TODO: Use I_OR_IJ
   projection_rhs_einsum = compile.TTEinsum(
@@ -129,28 +130,38 @@ def project(what, where):
   )
   projection_lhs = compile.to_function(projection_lhs_einsum)
 
-  project_1_einsum = compile.TTEinsum(
-      inputs=[['a', 'b'], ['b', 'i', 'c']],  output=['a', 'i', 'c'],
-      how_to_apply='independent'
-  )
-  project_1 = compile.to_function(project_1_einsum)
+  # project_1_einsum = compile.TTEinsum(
+  #     inputs=[['a', 'b'], ['b', 'i', 'c']],  output=['a', 'i', 'c'],
+  #     how_to_apply='independent'
+  # )
+  # project_1 = compile.to_function(project_1_einsum)
 
-  project_2_einsum = compile.TTEinsum(
-      inputs=[['a', 'i', 'b'], ['b', 'c']],  output=['a', 'i', 'c'],
-      how_to_apply='independent'
-  )
-  project_2 = compile.to_function(project_2_einsum)
+  def project_1(a_list, b_list):
+    return [jnp.einsum('ab,bic->aic', a, b) for a, b in zip(a_list, b_list)]
+
+  # project_2_einsum = compile.TTEinsum(
+  #     inputs=[['a', 'i', 'b'], ['b', 'c']],  output=['a', 'i', 'c'],
+  #     how_to_apply='independent'
+  # )
+  # project_2 = compile.to_function(project_2_einsum)
+
+  dtype = jnp.float32
+
+  def project_2(a_list, b_list):
+    return [jnp.einsum('aib,bc->aic', a, b) for a, b in zip(a_list, b_list)]
 
   left = orthogonalize(where)
   right = orthogonalize(left, left_to_right=False)
-  rhs = projection_rhs(what, right)
-  lhs = projection_lhs(left, what)
+  one = jnp.ones((1, 1), dtype=dtype)
+  rhs = projection_rhs(what, right) + [one]
+  lhs = [one] + projection_lhs(left, what)
   # TODO: we need something like raw_independent_project that would support a
   #  list of tensors instead of actual TT-cores.
-  proj_a = project_1(lhs[:-1], what.tt_cores[:-1])
-  # print(left_tangent_space_tens.tt_cores, rhs)
-  proj_b = project_2(left.tt_cores[:-1], lhs[1:])
+  # TODO: fusion with cumulative + independent?
+  proj_a = project_1(lhs[:-1], what.tt_cores)
+  proj_b = project_2(left.tt_cores[:-1], lhs[1:-1])
   proj_deltas = [a - b for a, b in zip(proj_a, proj_b)]
-  proj_deltas = project_2(proj_deltas, rhs[1:])
+  proj_deltas = project_2(proj_deltas, rhs[1:-1])
+  proj_deltas.append(proj_a[-1])
   # TODO: pass left and right to deltas_to_tangent?
   return deltas_to_tangent(proj_deltas, where)
