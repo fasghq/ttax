@@ -110,7 +110,7 @@ class TTEinsum:
   def resolve_batch_einsum_rule(self, num_batch_dims):
     if self.batch_einsum_rule is not None:
       return self
-    if num_batch_dimes == 0:
+    if num_batch_dims == 0:
       return self
     i = 0
     batch_letters = ""
