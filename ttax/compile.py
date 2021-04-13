@@ -290,7 +290,7 @@ def _fuse_tt_einsums(tt_einsum: TTEinsum,
   """
   curr_tt_einsum = copy.deepcopy(tt_einsum)
 
-  if batch einsum rule anywhere, call .resolve_batch_einsum_rule everywhere.
+  # if batch einsum rule anywhere, call .resolve_batch_einsum_rule everywhere.
 
   curr_tt_einsum_inp_idx = 0
   new_tensor_args = []
