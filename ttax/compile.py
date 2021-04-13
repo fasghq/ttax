@@ -104,8 +104,8 @@ class TTEinsum:
     for inp in self.inputs:
       inputs.append(''.join(inp))
     _, batch_out = self.batch_einsum_rule.split('->')
-    return ','.join([b + a for (a, b) in zip(inputs, self.input_b)]) + 
-           '->' + batch_out + ''.join(self.output)
+    return (','.join([b + a for (a, b) in zip(inputs, self.input_b)]) + 
+           '->' + batch_out + ''.join(self.output))
 
   def resolve_batch_einsum_rule(self, num_batch_dims):
     if self.batch_einsum_rule is not None:
