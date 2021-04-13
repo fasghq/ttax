@@ -80,6 +80,12 @@ class TTEinsum:
   def __init__(self, inputs, output, how_to_apply, batch_einsum_rule=None):
     self.inputs = inputs
     self.output = output
+    if batch_einsum_rule is not None:
+      self.inputs = batch_einsum_rule.split('->')[0].split(',')
+      self.output = list(batch_einsum_rule.split('->')[1])
+    else:
+      self.input_b = None
+      self.output_b = None
     self.how_to_apply = how_to_apply
     self.batch_einsum_rule = batch_einsum_rule
 
@@ -97,7 +103,9 @@ class TTEinsum:
     inputs = []
     for inp in self.inputs:
       inputs.append(''.join(inp))
-    return ','.join(['...' + a for a in inputs]) + '->...' + ''.join(self.output)
+    _, batch_out = self.batch_einsum_rule.split('->')
+    return ','.join([b + a for (a, b) in zip(inputs, self.input_b)]) + 
+           '->' + batch_out + ''.join(self.output)
 
   def resolve_batch_einsum_rule(self, num_batch_dims):
     if self.batch_einsum_rule is not None:
@@ -115,7 +123,7 @@ class TTEinsum:
           choose_letter = False
       batch_letters += letter
     tt_einsum = copy.deepcopy(self)
-    tt_einsum.batch_einsum_rule = ','.join(batch_letters) + '->' +     batch_letters
+    tt_einsum.batch_einsum_rule = ','.join(batch_letters) + '->' + batch_letters
     return tt_einsum
 
   def apply_mapping(self, mapping: Dict[str, str]):
@@ -144,7 +152,7 @@ class TTEinsum:
 
   def to_distinct_letters(self, distinct_from):
     """Rename letters to make them distinct from letters used in distinct_from."""
-    assert that either no ... or everything is ... in batch rules
+    # assert that either no ... or everything is ... in batch rules
     distinct_from_einsum = distinct_from.to_vanilla_einsum()
     # TODO: add upper case
     vacant_letters = [l for l in ascii_lowercase if l not in distinct_from_einsum]
@@ -164,7 +172,7 @@ class TTEinsum:
       return el
     new_inputs = tree.map_structure(resolve, self.inputs)
     new_output = tree.map_structure(resolve, self.output)
-    return TTEinsum(new_inputs, new_output, self.how_to_apply)
+    return TTEinsum(new_inputs, new_output, self.how_to_apply, self.batch_einsum_rule)
 
 def apply_single_mapping(strings, mapping):
   """Apply letter mapping to a list of strings."""
@@ -176,10 +184,43 @@ def apply_single_mapping(strings, mapping):
     new_strings.append(curr_str)
   return new_strings
   
-def divide_batch_rule(tt_einsum: TTEinsum):
-  rule = tt_einsum.batch_einsum_rule
-  arrow_pos = rule.index('-')
-  return rule[:arrow_pos], rule[arrow_pos + 2:]
+  def to_distinct_letters_batch(self, distinct_from):
+    """Rename batch letters to make them distinct from letters used in distinct_from."""
+    distinct_from_einsum = distinct_from.batch_einsum_rule
+    vacant_letters = [l for l in ascii_uppercase if l not in distinct_from_einsum]
+    einsum = self.batch_einsum_rule
+    curr_unique_letters = [l for l in einsum if l in ascii_uppercase]
+    new_einsum = ""
+    for l in einsum:
+      if l in curr_unique_letters or l not in ascii_uppercase:
+        new_einsum += l
+      else:
+        new_einsum += vacant_letters[0]
+        vacant_letters = vacant_letters[1:]
+    return TTEinsum(self.inputs, self.output, self.how_to_apply, new_einsum)
+    
+def change_input_batch(self, input_idx: int, new_inputs: list):
+    prefix = self.input_b[:input_idx]
+    postfix = self.inputs_b[input_idx + 1:]
+    new_inputs = prefix + new_inputs + postfix
+    new_einsum = to_einsum_rule(new_inputs, self.output_b)
+    return TTEinsum(self.inputs, self.output, self.how_to_apply, new_einsum)
+    
+def to_einsum_rule(list_in, list_out):
+    """Build einsum rule from input and output lists."""
+    inputs = []
+    for inp in list_in:
+      inputs.append(''.join(inp))
+    return ','.join([a for a in inputs]) + '->' + ''.join(list_out)
+   
+def apply_mapping_batch(self, mapping: Dict[str, str]):
+    """Rename letters according to the given mapping."""
+    new_inputs = []
+    for inp in self.input_b:
+      new_inputs.append(apply_single_mapping(inp, mapping))
+    new_output = apply_single_mapping(self.output_b, mapping)
+    new_einsum = to_einsum_rule(new_inputs, new_output)
+    return TTEinsum(self.inputs, self.output, self.how_to_apply, new_einsum)
 
 def fuse_batch_einsum(tt_einsum: TTEinsum,
                       tensor_args: List[Union[TT, WrappedTT]]) -> TTEinsum:
@@ -193,28 +234,23 @@ def fuse_batch_einsum(tt_einsum: TTEinsum,
     if isinstance(arg, WrappedTT) and arg.tt_einsum is not None:
       assert arg.tt_einsum.how_to_apply == 'independent'
       # Step 1.
-      new_arg_tt_einsum = arg.tt_einsum.to_distinct_letters(curr_tt_einsum)
+      new_arg_tt_einsum = arg.tt_einsum.to_distinct_letters_batch(curr_tt_einsum)
       # Step 2.
-      curr_inp, curr_out = divide_batch_rule(curr_tt_einsum.batch_einsum_rule)
-      curr_inp = curr_inp.split(',')
-      curr_out = list(curr_out)
-      unchanged_inp = copy.deepcopy(curr_inp[curr_tt_einsum_inp_idx])
-      curr_tt_einsum = curr_tt_einsum.change_input(curr_tt_einsum_inp_idx,
-                                                   new_arg_tt_einsum.inputs)
+      unchanged_inp = copy.deepcopy(curr_tt_einsum.input_b[curr_tt_einsum_inp_idx])
+      curr_tt_einsum = curr_tt_einsum.change_input_batch(curr_tt_einsum_inp_idx,
+                                                   new_arg_tt_einsum.input_b)
       # Step 3.
       mapping = {}
-      for fr, to in zip(unchanged_inp, new_arg_tt_einsum.output):
-        if len(fr) == 1:
-          mapping[fr] = to
-        elif len(fr) == len(to):
+      for fr, to in zip(unchanged_inp, new_arg_tt_einsum.output_b):
+        if len(fr) == len(to):
           for i in range(len(fr)):
             mapping[fr[i]] = to[i]
         else:
           raise ValueError()
 
-      curr_tt_einsum = curr_tt_einsum.apply_mapping(mapping)
+      curr_tt_einsum = curr_tt_einsum.apply_mapping_batch(mapping)
 
-      curr_tt_einsum_inp_idx += len(new_arg_tt_einsum.inputs)
+      curr_tt_einsum_inp_idx += len(new_arg_tt_einsum.input_b)
       new_tensor_args += arg.tt_inputs
     else:
       curr_tt_einsum_inp_idx += 1
@@ -408,5 +444,3 @@ def fuse(func):
     return res
 
   return _func
-  
-
