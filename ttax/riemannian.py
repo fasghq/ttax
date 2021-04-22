@@ -54,7 +54,7 @@ def _deltas_tt_vmap(_deltas_to_tangent):
       # Vmap everything num_batch_dims times.
       vmapped = _deltas_to_tangent
       for _ in range(num_batch_dims):
-        vmapped = jax.vmap(vmapped, in_axes=(0, None))
+        vmapped = jax.vmap(vmapped, in_axes=(0, 0))
       return vmapped(deltas, tt)
   return vectorized_deltas_to_tangent
 
@@ -92,7 +92,7 @@ def deltas_to_tangent(deltas: List[jnp.ndarray],
                                      axis=right_rank_dim)
     elif i == tt.ndim - 1:
       tangent_core = jnp.concatenate((right_tt_core, deltas[i]),
-                                     axis=0)
+                                     axis=left_rank_dim)
     else:
       rank_1 = right.tt_ranks[i]
       rank_2 = left.tt_ranks[i + 1]
