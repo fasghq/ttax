@@ -111,6 +111,7 @@ def round(tt, max_tt_rank=None, epsilon=None):
     return TT(tt_cores)
 
 
+@tt_vmap(1)
 def orthogonalize(tt, left_to_right=True):
   """Orthogonalize TT-cores of a TT-object.
   Args:
@@ -125,7 +126,6 @@ def orthogonalize(tt, left_to_right=True):
     return _orthogonalize_tt_cores_right_to_left(tt)
 
 
-@tt_vmap()
 def _orthogonalize_tt_cores_left_to_right(tt):
   """Orthogonalize TT-cores of a TT-object.
   Args:
@@ -189,7 +189,6 @@ def _orthogonalize_tt_cores_left_to_right(tt):
     return TT(tt_cores)
 
 
-@tt_vmap()
 def _orthogonalize_tt_cores_right_to_left(tt):
   """Orthogonalize TT-cores of a TT-object.
   Args:
