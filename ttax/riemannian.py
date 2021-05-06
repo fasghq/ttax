@@ -6,6 +6,7 @@ import jax.numpy as jnp
 from ttax.base_class import TT
 from ttax.base_class import TTMatrix
 from ttax.base_class import TTTensOrMat
+from ttax import compile
 from ttax.ops import tt_vmap
 from ttax.decompositions import orthogonalize
 
@@ -53,7 +54,7 @@ def _deltas_tt_vmap(_deltas_to_tangent):
       # Vmap everything num_batch_dims times.
       vmapped = _deltas_to_tangent
       for _ in range(num_batch_dims):
-        vmapped = jax.vmap(vmapped, in_axes=(0, None))
+        vmapped = jax.vmap(vmapped, in_axes=(0, 0))
       return vmapped(deltas, tt)
   return vectorized_deltas_to_tangent
 
@@ -91,7 +92,7 @@ def deltas_to_tangent(deltas: List[jnp.ndarray],
                                      axis=right_rank_dim)
     elif i == tt.ndim - 1:
       tangent_core = jnp.concatenate((right_tt_core, deltas[i]),
-                                     axis=0)
+                                     axis=left_rank_dim)
     else:
       rank_1 = right.tt_ranks[i]
       rank_2 = left.tt_ranks[i + 1]
@@ -111,3 +112,56 @@ def deltas_to_tangent(deltas: List[jnp.ndarray],
     return TTMatrix(cores)
   else:
     return TT(cores)
+
+
+@tt_vmap()  # TODO: don't need this once fully supported by einsum.
+def project(what, where):
+  # TODO: Use I_OR_IJ
+  projection_rhs_einsum = compile.TTEinsum(
+      inputs=[['a', 'i', 'b'], ['c', 'i', 'd'], ['b', 'd']],  output=['a', 'c'],
+      order='right-to-left',
+      how_to_apply='cumulative'
+  )
+  projection_rhs = compile.to_function(projection_rhs_einsum)
+
+  projection_lhs_einsum = compile.TTEinsum(
+      inputs=[['a', 'i', 'b'], ['c', 'i', 'd'], ['a', 'c']],  output=['b', 'd'],
+      how_to_apply='cumulative'
+  )
+  projection_lhs = compile.to_function(projection_lhs_einsum)
+
+  # project_1_einsum = compile.TTEinsum(
+  #     inputs=[['a', 'b'], ['b', 'i', 'c']],  output=['a', 'i', 'c'],
+  #     how_to_apply='independent'
+  # )
+  # project_1 = compile.to_function(project_1_einsum)
+
+  def project_1(a_list, b_list):
+    return [jnp.einsum('ab,bic->aic', a, b) for a, b in zip(a_list, b_list)]
+
+  # project_2_einsum = compile.TTEinsum(
+  #     inputs=[['a', 'i', 'b'], ['b', 'c']],  output=['a', 'i', 'c'],
+  #     how_to_apply='independent'
+  # )
+  # project_2 = compile.to_function(project_2_einsum)
+
+  dtype = jnp.float32
+
+  def project_2(a_list, b_list):
+    return [jnp.einsum('aib,bc->aic', a, b) for a, b in zip(a_list, b_list)]
+
+  left = orthogonalize(where)
+  right = orthogonalize(left, left_to_right=False)
+  one = jnp.ones((1, 1), dtype=dtype)
+  rhs = projection_rhs(what, right) + [one]
+  lhs = [one] + projection_lhs(left, what)
+  # TODO: we need something like raw_independent_project that would support a
+  #  list of tensors instead of actual TT-cores.
+  # TODO: fusion with cumulative + independent?
+  proj_a = project_1(lhs[:-1], what.tt_cores)
+  proj_b = project_2(left.tt_cores[:-1], lhs[1:-1])
+  proj_deltas = [a - b for a, b in zip(proj_a, proj_b)]
+  proj_deltas = project_2(proj_deltas, rhs[1:-1])
+  proj_deltas.append(proj_a[-1])
+  # TODO: pass left and right to deltas_to_tangent?
+  return deltas_to_tangent(proj_deltas, where)
