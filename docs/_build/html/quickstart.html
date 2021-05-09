@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quick start &#8212; ttax 0.0.2 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="quick-start">
+<h1>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
+<p>Open this <a class="reference external" href="https://colab.research.google.com/drive/1hxA-UzztmSqLpRhT70BmzdjN_wO17RND?usp=sharing">page</a> in an interactive mode via Google Colaboratory.</p>
+<p>This is a quick starting guide to look at the basics of working with ttax library. Our library provides routines for Tensor-Train object – a compact (factorized) representation of a tensor.</p>
+<p>Let’s import some libraries:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>! pip install ttax jax flax
+
+import jax
+import ttax
+import numpy as np
+</pre></div>
+</div>
+<div class="section" id="converting-to-and-from-tt-format">
+<h2>Converting to and from TT-format<a class="headerlink" href="#converting-to-and-from-tt-format" title="Permalink to this headline">¶</a></h2>
+<p>In code below we generate a random TT-tensor of size 10 x 5 x 2 with TT-rank = 3 and convert it to dense (full) format:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rng</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">dtype</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">float32</span>
+<span class="n">a_tt</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">random_</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">tt_rank</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+<span class="n">a_dense</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">a_tt</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>a_tt stores the factorized representation of the tensor, namely it stores the tensor as a product of 3 smaller tensors which are called TT-cores. You can access the TT-cores directly.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The larger the TT-rank, the more exactly the tensor will be converted, but the more memory and time everything will take.</p>
+</div>
+</div>
+<div class="section" id="arithmetic-operations">
+<h2>Arithmetic operations<a class="headerlink" href="#arithmetic-operations" title="Permalink to this headline">¶</a></h2>
+<p>TTAX provides different operations that can be applied to the tensors in the TT-format.</p>
+<p>Let’s create several random TT-tensors of shape 3x4x5 and provide some arithmetic operations (sum and elementwise product) with them.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rng</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">41</span><span class="p">)</span>
+<span class="n">a_tt</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">random_</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">tt_rank</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+<span class="n">b_tt</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">random_</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">tt_rank</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+<span class="n">sum_tt</span> <span class="o">=</span> <span class="n">a_tt</span> <span class="o">+</span> <span class="n">b_tt</span>
+<span class="n">prod_tt</span> <span class="o">=</span> <span class="n">a_tt</span> <span class="o">*</span> <span class="n">b_tt</span>
+<span class="n">twice_a_tt</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">a_tt</span>
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Most operations on TT-tensors increase the TT-rank. After applying a sequence of operations the TT-rank can increase by too much and we may want to reduce it. To do that there is a rounding operation, which finds the tensor that is of a smaller rank but is as close to the original one as possible.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rounded_prod_tt</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">prod_tt</span><span class="p">)</span>
+
+<span class="n">a_max_tt_rank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">a_tt</span><span class="o">.</span><span class="n">tt_ranks</span><span class="p">)</span>
+<span class="n">b_max_tt_rank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">b_tt</span><span class="o">.</span><span class="n">tt_ranks</span><span class="p">)</span>
+<span class="n">exact_prod_max_tt_rank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">prod_tt</span><span class="o">.</span><span class="n">tt_ranks</span><span class="p">)</span>
+<span class="n">rounded_prod_max_tt_rank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">rounded_prod_tt</span><span class="o">.</span><span class="n">tt_ranks</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The TT-ranks of a and b are </span><span class="si">%d</span><span class="s1"> and </span><span class="si">%d</span><span class="s1">. The TT-rank &#39;</span>
+      <span class="s1">&#39;of their elementwise product is </span><span class="si">%d</span><span class="s1">. The TT-rank of &#39;</span>
+      <span class="s1">&#39;their product after rounding is </span><span class="si">%d</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a_max_tt_rank</span><span class="p">,</span>
+      <span class="n">b_max_tt_rank</span><span class="p">,</span> <span class="n">exact_prod_max_tt_rank</span><span class="p">,</span>
+      <span class="n">rounded_prod_max_tt_rank</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Check that rounded TT-tensor of product converted to the full format is close to the product of full tensors a and b:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">actual_prod</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">a_tt</span><span class="p">)</span> <span class="o">*</span> <span class="n">ttax</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">b_tt</span><span class="p">)</span>
+<span class="n">prod_full</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">prod_tt</span><span class="p">)</span>
+<span class="n">rounded_prod_full</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">rounded_prod_tt</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">actual_prod</span><span class="p">,</span> <span class="n">rounded_prod_full</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">actual_prod</span><span class="p">,</span> <span class="n">prod_full</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">prod_full</span><span class="p">,</span> <span class="n">rounded_prod_full</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="working-with-tt-matrices">
+<h2>Working with TT-matrices<a class="headerlink" href="#working-with-tt-matrices" title="Permalink to this headline">¶</a></h2>
+<p>Recall that for 2-dimensional tensors the TT-format coincides with the matrix low-rank format. However, sometimes matrices can have full matrix rank, but some tensor structure (for example a kronecker product of matrices). In this case there is a special object called Matrix TT-format. You can think of it as a sum of kronecker products (although it’s a bit more complicated than that).</p>
+<p>Let’s say that you have a matrix of size 8 x 27. You can convert it into the matrix TT-format of tensor shape (2, 2, 2) x (3, 3, 3) (in which case the matrix will be represented with 3 TT-cores) or, for example, into the matrix TT-format of tensor shape (4, 2) x (3, 9) (in which case the matrix will be represented with 2 TT-cores).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rng</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">41</span><span class="p">)</span>
+<span class="n">a_matrix_tt</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">random_</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span> <span class="n">tt_rank</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+<span class="n">twice_a_matrix_tt</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">a_matrix_tt</span>
+<span class="n">prod_tt</span> <span class="o">=</span> <span class="n">a_matrix_tt</span> <span class="o">*</span> <span class="n">a_matrix_tt</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rng1</span><span class="p">,</span> <span class="n">rng2</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">dtype</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">float32</span>
+<span class="n">left_shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">sum_shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">right_shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">tt_a</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">random_</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">rng1</span><span class="p">,</span> <span class="p">(</span><span class="n">left_shape</span><span class="p">,</span> <span class="n">sum_shape</span><span class="p">),</span> <span class="n">tt_rank</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+<span class="n">tt_b</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">random_</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">rng2</span><span class="p">,</span> <span class="p">(</span><span class="n">sum_shape</span><span class="p">,</span> <span class="n">right_shape</span><span class="p">),</span> <span class="n">tt_rank</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                           <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+<span class="n">res_actual</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">ttax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">tt_a</span><span class="p">,</span> <span class="n">tt_b</span><span class="p">))</span>
+<span class="n">res_desired</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">tt_a</span><span class="p">)</span> <span class="o">@</span> <span class="n">ttax</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">tt_b</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">res_actual</span><span class="p">,</span> <span class="n">res_desired</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="working-with-batches">
+<h2>Working with batches<a class="headerlink" href="#working-with-batches" title="Permalink to this headline">¶</a></h2>
+<p>TTAX tries to support the work with multidimensional batches of tensors where it is possible, taking the input of multidimensional batches as if they were taking ordinary tensors. It means that if A and B are batches of TT-tensors/matices you can do A+B like you do for TT-tensors/matrices.</p>
+<p>Let’s see how it works. We create 2 batches of TT-tensors of the same batch size and then compare the result of sum in TT format with the one in full format.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rng1</span><span class="p">,</span> <span class="n">rng2</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">dtype</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">float32</span>
+<span class="n">tt_a</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">random_</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">rng1</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">tt_rank</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">batch_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,),</span>
+                  <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+<span class="n">tt_b</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">random_</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">rng2</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">tt_rank</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                  <span class="n">batch_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+<span class="n">res_actual</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">tt_a</span> <span class="o">+</span> <span class="n">tt_b</span><span class="p">)</span>
+<span class="n">res_desired</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">tt_a</span><span class="p">)</span> <span class="o">+</span> <span class="n">ttax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">tt_b</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">res_actual</span><span class="p">,</span> <span class="n">res_desired</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can use both tensor indexing and batch indexing.</p>
+</div>
+<p>You can use tensor indexing to get specified element / slice.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rng</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">41</span><span class="p">)</span>
+<span class="n">tt</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">random_</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tt</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;&lt;- 2D Tensor-Train&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tt</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;&lt;- 3D Tensor-Train&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Similar idea for batch indexing but with a slightly different syntax.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rng</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">41</span><span class="p">)</span>
+<span class="n">tt</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">random_</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">tt_rank</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">batch_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,))</span>
+<span class="n">tt</span><span class="o">.</span><span class="n">batch_loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="speeding-up-your-code">
+<h2>Speeding up your code<a class="headerlink" href="#speeding-up-your-code" title="Permalink to this headline">¶</a></h2>
+<p>Our library is written with the expectation of using the jax.jit for acceleration.</p>
+<p>Some routines were based on einsum (see TTEinsum), to speed them up you can use fuse method (see compile.fuse).</p>
+<p>Below is the example of how to use such speeding up and the difference it provides.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rng</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">tt_a</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">random_</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">tt_rank</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">tt_b</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">random_</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">tt_rank</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">tt_c</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">random_</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">tt_rank</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">ttax</span><span class="o">.</span><span class="n">flat_inner</span><span class="p">(</span><span class="n">ttax</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="n">c</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fused_f</span> <span class="o">=</span> <span class="n">ttax</span><span class="o">.</span><span class="n">fuse</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="n">jit_f</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="n">jit_fused_f</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">fused_f</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">timeit</span> <span class="n">f</span><span class="p">(</span><span class="n">tt_a</span><span class="p">,</span> <span class="n">tt_b</span><span class="p">,</span> <span class="n">tt_c</span><span class="p">)</span>
+<span class="o">%</span><span class="n">timeit</span> <span class="n">jit_f</span><span class="p">(</span><span class="n">tt_a</span><span class="p">,</span> <span class="n">tt_b</span><span class="p">,</span> <span class="n">tt_c</span><span class="p">)</span>
+<span class="o">%</span><span class="n">timeit</span> <span class="n">jit_fused_f</span><span class="p">(</span><span class="n">tt_a</span><span class="p">,</span> <span class="n">tt_b</span><span class="p">,</span> <span class="n">tt_c</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ttax</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#converting-to-and-from-tt-format">Converting to and from TT-format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#arithmetic-operations">Arithmetic operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-tt-matrices">Working with TT-matrices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-batches">Working with batches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#speeding-up-your-code">Speeding up your code</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="installation.html" title="previous chapter">Installation</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Alexander Novikov and Dmitry Belousov.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/quickstart.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

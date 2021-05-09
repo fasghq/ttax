@@ -182,7 +182,7 @@ class BatchIndexing:
 
   def __getitem__(self, indices: list):
     non_none_indices = [idx for idx in indices if idx is not None]
-    if len(non_none_indices) > self._tt.tt_num_batch_dims:
+    if len(non_none_indices) > self._tt.num_batch_dims:
       raise ValueError('Expected %d indices, got %d' % (self._tt.num_batch_dims,
                                                         len(non_none_indices)))
     new_cores = []
