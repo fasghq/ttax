@@ -7,7 +7,7 @@ This is a quick starting guide to look at the basics of working with ttax librar
 
 Let's import some libraries:
 
-.. code-block:: python
+.. code-block:: 
 
     ! pip install ttax jax flax
     
