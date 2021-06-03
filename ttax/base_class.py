@@ -56,27 +56,57 @@ class TTBase:
 
 @flax.struct.dataclass
 class TT(TTBase):
+  """Represents a `TT-Tensor` object as a list of `TT-cores`.
+  
+  `TT-Tensor` cores take form (r_l, n, r_r), where
+  
+  - r_l, r_r are `TT-ranks`
+  - n makes `TT-Tensor` shape
+  """
   tt_cores: List[jnp.array]
 
   @property
   def shape(self):
+    """Get the tuple representing the shape of `TT-Tensor`. 
+    In batch case includes the shape of the batch.
+    
+    :return: `TT-Tensor` shape with batch shape
+    :rtype: tuple
+    """
     no_batch_shape = [c.shape[self.axis_dim] for c in self.tt_cores]
     return tuple(list(self.batch_shape) + no_batch_shape)
 
   @property
   def num_batch_dims(self):
+    """Get the number of batch dimensions for batch of `TT-Tensors`.
+    
+    :return: number of batch dimensions
+    :rtype: int
+    """
     return len(self.tt_cores[0].shape) - 3
 
   @property
   def is_tt_matrix(self):
+    """Determine whether the object is a `TT-Matrix`.
+
+    :return: `True` if `TT-Matrix`, `False` if `TT-Tensor`
+    :rtype: bool
+    """
     return False
 
   @property
   def raw_tensor_shape(self):
+    """Get the tuple representing the shape of `TT-Tensor`. 
+    In batch case does not include the shape of the batch.
+    
+    :return: `TT-Tensor` shape
+    :rtype: tuple
+    """
     return [c.shape[self.axis_dim] for c in self.tt_cores]
   
   def __getitem__(self, slice_spec):
     """Basic indexing, returns a TT containing the specified element / slice.
+    
     Examples:
       >>> a = ttax.random.tensor(rng, [2, 3, 4])
       >>> a[1, :, :]
@@ -116,26 +146,61 @@ class TT(TTBase):
 
 @flax.struct.dataclass
 class TTMatrix(TTBase):
+  """Represents a `TT-Matrix` object as a list of `TT-cores`.
+  
+  `TT-Matrix` cores take form (r_l, n_l, n_r, r_r), where
+  
+  - r_l, r_r are `TT-ranks` just as for `TT-Tensor`
+  - n_l, n_r make left and right shapes of `TT-Matrix` as rows and cols
+  """
   tt_cores: List[jnp.array]
 
   @property
   def raw_tensor_shape(self):
+    """Get the lists representing left and right shapes of `TT-Matrix`. 
+    In batch case does not include the shape of the batch.
+    
+    For example if `TT-Matrix` cores are (1, 2, 3, 5) (5, 6, 7, 1)
+    returns (2, 6), (3, 7).
+    
+    :return: `TT-Matrix` shapes
+    :rtype: list, list
+    """
     left_shape = [c.shape[self.axis_dim] for c in self.tt_cores]
     right_shape = [c.shape[self.axis_dim + 1] for c in self.tt_cores]
     return left_shape, right_shape
 
   @property
   def shape(self):
+    """Get the tuple representing the shape of underlying dense tensor as matrix. 
+    In batch case includes the shape of the batch.
+    
+    For example if `TT-Matrix` cores are (1, 2, 3, 5) (5, 6, 7, 1)
+    it's shape is (12, 21).
+    
+    :return: `TT-Matrix` shape in dense form with batch shape
+    :rtype: tuple
+    """
     left_shape, right_shape = self.raw_tensor_shape
     no_batch_shape = [np.prod(left_shape), np.prod(right_shape)]
     return tuple(list(self.batch_shape) + no_batch_shape)
 
   @property
   def num_batch_dims(self):
+    """Get the number of batch dimensions for batch of `TT-Matrices.`
+    
+    :return: number of batch dimensions
+    :rtype: int
+    """
     return len(self.tt_cores[0].shape) - 4
 
   @property
   def is_tt_matrix(self):
+    """Determine whether the object is a `TT-Matrix`.
+
+    :return: `True` if `TT-Matrix`, `False` if `TT-Tensor`
+    :rtype: bool
+    """
     return True
   
   def __getitem__(self, slice_spec):

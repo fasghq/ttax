@@ -9,38 +9,46 @@ from ttax.ops import tt_vmap
 
 @tt_vmap(1)
 def round(tt, max_tt_rank=None, epsilon=None):
-  """TT-rounding procedure, returns a TT object with smaller TT-ranks.
-  Args:
-    tt: TT-tensor or TT-matrix.
-    max_tt_rank: a number or a list of numbers.
-      If a number, than defines the maximal TT-rank of the result.
-      If a list of numbers, than `max_tt_rank` length should be d+1
-      (where d is the number of dimensions) and `max_tt_rank[i]` defines
-      the maximal (i+1)-th TT-rank of the result.
+  """Tensor Train rounding procedure, returns a `TT-object` with smaller `TT-ranks`.
+
+  :param tt: argument which ranks would be reduced
+  :type tt: `TT-Tensor` or `TT-Matrix`
+  :type max_tt_rank: int or list of ints
+  :param max_tt_rank: 
+    - If a number, than defines the maximal `TT-rank` of the result. 
+    - If a list of numbers, than `max_tt_rank` length should be d+1 
+      (where d is the number of dimensions) and `max_tt_rank[i]`
+      defines the maximal (i+1)-th `TT-rank` of the result.
+      
       The following two versions are equivalent
-        `max_tt_rank = r`
-      and
-        `max_tt_rank = [1] + [r] * (d-1) + [1]`
-    epsilon: a floating point number or None
-      If the TT-ranks are not restricted (`max_tt_rank=None`), then
-      the result would be guarantied to be `epsilon` close to `tt`
+      
+      - ``max_tt_rank = r``
+      
+      - ``max_tt_rank = [1] + [r] * (d-1) + [1]``   
+  :type epsilon: float or None
+  :param epsilon:
+      - If the `TT-ranks` are not restricted (`max_tt_rank=None`), then
+      the result would be guarantied to be `epsilon`-close to `tt`
       in terms of relative Frobenius error:
-        ||res - tt||_F / ||tt||_F <= epsilon
-      If the TT-ranks are restricted, providing a loose `epsilon` may
-      reduce the TT-ranks of the result.
-      E.g.
-        round(tt, max_tt_rank=100, epsilon=0.9)
-      will probably return you a TT-tensor with TT-ranks close to 1, not 100.
-      Note that providing a nontrivial (= not equal to None) epsilon will make
-      the TT-ranks of the result change depending on the data, 
-      which will prevent you from using jax.jit 
+      
+        `||res - tt||_F / ||tt||_F <= epsilon`
+        
+      - If the `TT-ranks` are restricted, providing a loose `epsilon` may
+      reduce the `TT-ranks` of the result. E.g.
+      
+        ``round(tt, max_tt_rank=100, epsilon=0.9)``
+        
+      will probably return you a `TT-Tensor` with `TT-ranks` close to 1, not 100.
+      Note that providing a nontrivial (= not equal to `None`) epsilon will make
+      the `TT-ranks` of the result change depending on the data, 
+      which will prevent you from using ``jax.jit``
       for speeding up the computations.
-  Returns:
-    TT-tensor or TT-matrix.
-  Raises:
-    ValueError if max_tt_rank is less than 0, if max_tt_rank is not a number and
+  :return: `TT-object` with reduced `TT-ranks`
+  :rtype: `TT-Tensor` or `TT-Matrix`
+  :raises:
+    ValueError if `max_tt_rank` is less than 0, if `max_tt_rank` is not a number and
     not a vector of length d + 1 where d is the number of dimensions of
-    the input tensor, if epsilon is less than 0.
+    the input tensor, if `epsilon` is less than 0.
   """
 
   if max_tt_rank is None:
@@ -113,12 +121,14 @@ def round(tt, max_tt_rank=None, epsilon=None):
 
 @tt_vmap(1)
 def orthogonalize(tt, left_to_right=True):
-  """Orthogonalize TT-cores of a TT-object.
-  Args:
-    tt: TT-tensor or TT-matrix.
-    left_to_right: bool, the direction of orthogonalization.
-  Returns:
-    TT-tensor or TT-matrix.
+  """Orthogonalize `TT-cores` of a `TT-object`.
+  
+  :type tt: `TT-Tensor` or `TT-Matrix`
+  :param tt: `TT-object` which `TT-cores` would be orthogonalized
+  :param left_to_right: the direction of orthogonalization, `True` for left to right and `False` for right to left
+  :type left_to_right: bool
+  :return: `TT-object` with orthogonalized `TT-cores`
+  :rtype: `TT-Tensor` or `TT-Matrix`
   """
   if left_to_right:
     return _orthogonalize_tt_cores_left_to_right(tt)

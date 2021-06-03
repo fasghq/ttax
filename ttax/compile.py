@@ -330,24 +330,27 @@ def fuse(func):
   """Fuse a composite function to make it faster.
 
   Example:
-    def f(a, b, c):
-      # Computes
-      # <a * b, c> =
-      #   sum_{i_1, ..., i_d} a[i_1, ..., i_d] b[i_1, ..., i_d] c[i_1, ..., i_d]
-      return ttax.flat_inner(a * b, c)
+  
+  Let's look at f(a, b, c) = <a * b, c> = sum_{i_1, ..., i_d} a[i_1, ..., i_d] b[i_1, ..., i_d] c[i_1, ..., i_d], as ttax.flat_inner(a * b, c) do.
 
   Function `f` can be suboptimal for some inputs. For example, if `a` and `b`
   are of large TT-rank, and `c` is of low TT-rank, implementing the same
   operation as
+  
     ttax.flat_inner(a * c, b)
+    
   would be much more efficient.
 
   `fuse` automates such optimizations. You can build an optimal implementation
   of this function for any inputs by doing
+  
     faster_f = ttax.fuse(f)
-  Finally, don't forget that in Jax to get good speed you need to wrap you
+    
+  Finally, don't forget that in JAX to get good speed you need to wrap you
   highest level function in jit, e.g.
+  
     faster_f = jax.jit(faster_f)
+    
   Now, by using `faster_f(a, b, c)` instead of `f(a, b, c)` you can achieve
   a much faster cumulative time for any inputs.
   """

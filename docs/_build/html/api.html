@@ -1,0 +1,681 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>API &mdash; ttax 0.0.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Quick start" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ttax
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-ttax">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ttax</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<p>Here you can find description of functions and methods avaliable in ttax.</p>
+<div class="section" id="module-ttax">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ttax" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="ttax.TT">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">ttax.</span></code><code class="sig-name descname"><span class="pre">TT</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tt_cores</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">jax._src.numpy.lax_numpy.array</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ttax.TT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ttax.base_class.TTBase</span></code></p>
+<p>Represents a <cite>TT-Tensor</cite> object as a list of <cite>TT-cores</cite>.</p>
+<p><cite>TT-Tensor</cite> cores take form (r_l, n, r_r), where</p>
+<ul class="simple">
+<li><p>r_l, r_r are <cite>TT-ranks</cite></p></li>
+<li><p>n makes <cite>TT-Tensor</cite> shape</p></li>
+</ul>
+<dl class="py method">
+<dt id="ttax.TT.is_tt_matrix">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_tt_matrix</span></code><a class="headerlink" href="#ttax.TT.is_tt_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine whether the object is a <cite>TT-Matrix</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><cite>True</cite> if <cite>TT-Matrix</cite>, <cite>False</cite> if <cite>TT-Tensor</cite></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ttax.TT.num_batch_dims">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">num_batch_dims</span></code><a class="headerlink" href="#ttax.TT.num_batch_dims" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of batch dimensions for batch of <cite>TT-Tensors</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>number of batch dimensions</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ttax.TT.raw_tensor_shape">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">raw_tensor_shape</span></code><a class="headerlink" href="#ttax.TT.raw_tensor_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the tuple representing the shape of <cite>TT-Tensor</cite>.
+In batch case does not include the shape of the batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><cite>TT-Tensor</cite> shape</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ttax.TT.replace">
+<code class="sig-name descname"><span class="pre">replace</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">updates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ttax.TT.replace" title="Permalink to this definition">¶</a></dt>
+<dd><p>“Returns a new object replacing the specified fields with new values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ttax.TT.shape">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">shape</span></code><a class="headerlink" href="#ttax.TT.shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the tuple representing the shape of <cite>TT-Tensor</cite>.
+In batch case includes the shape of the batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><cite>TT-Tensor</cite> shape with batch shape</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="ttax.TT.tt_cores">
+<code class="sig-name descname"><span class="pre">tt_cores</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">jax._src.numpy.lax_numpy.array</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#ttax.TT.tt_cores" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ttax.TTMatrix">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">ttax.</span></code><code class="sig-name descname"><span class="pre">TTMatrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tt_cores</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">jax._src.numpy.lax_numpy.array</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ttax.TTMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ttax.base_class.TTBase</span></code></p>
+<p>Represents a <cite>TT-Matrix</cite> object as a list of <cite>TT-cores</cite>.</p>
+<p><cite>TT-Matrix</cite> cores take form (r_l, n_l, n_r, r_r), where</p>
+<ul class="simple">
+<li><p>r_l, r_r are <cite>TT-ranks</cite> just as for <cite>TT-Tensor</cite></p></li>
+<li><p>n_l, n_r make left and right shapes of <cite>TT-Matrix</cite> as rows and cols</p></li>
+</ul>
+<dl class="py method">
+<dt id="ttax.TTMatrix.is_tt_matrix">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_tt_matrix</span></code><a class="headerlink" href="#ttax.TTMatrix.is_tt_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine whether the object is a <cite>TT-Matrix</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><cite>True</cite> if <cite>TT-Matrix</cite>, <cite>False</cite> if <cite>TT-Tensor</cite></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ttax.TTMatrix.num_batch_dims">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">num_batch_dims</span></code><a class="headerlink" href="#ttax.TTMatrix.num_batch_dims" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of batch dimensions for batch of <cite>TT-Matrices.</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>number of batch dimensions</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ttax.TTMatrix.raw_tensor_shape">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">raw_tensor_shape</span></code><a class="headerlink" href="#ttax.TTMatrix.raw_tensor_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the lists representing left and right shapes of <cite>TT-Matrix</cite>.
+In batch case does not include the shape of the batch.</p>
+<p>For example if <cite>TT-Matrix</cite> cores are (1, 2, 3, 5) (5, 6, 7, 1)
+returns (2, 6), (3, 7).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><cite>TT-Matrix</cite> shapes</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ttax.TTMatrix.replace">
+<code class="sig-name descname"><span class="pre">replace</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">updates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ttax.TTMatrix.replace" title="Permalink to this definition">¶</a></dt>
+<dd><p>“Returns a new object replacing the specified fields with new values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ttax.TTMatrix.shape">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">shape</span></code><a class="headerlink" href="#ttax.TTMatrix.shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the tuple representing the shape of underlying dense tensor as matrix.
+In batch case includes the shape of the batch.</p>
+<p>For example if <cite>TT-Matrix</cite> cores are (1, 2, 3, 5) (5, 6, 7, 1)
+it’s shape is (12, 21).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><cite>TT-Matrix</cite> shape in dense form with batch shape</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="ttax.TTMatrix.tt_cores">
+<code class="sig-name descname"><span class="pre">tt_cores</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">jax._src.numpy.lax_numpy.array</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#ttax.TTMatrix.tt_cores" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="ttax.flat_inner">
+<code class="sig-prename descclassname"><span class="pre">ttax.</span></code><code class="sig-name descname"><span class="pre">flat_inner</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ttax.flat_inner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate inner product of given <cite>TT-Tensors</cite> or <cite>TT-Matrices</cite> wrapped with <cite>WrappedTT</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<cite>WrappedTT</cite>) – first argument</p></li>
+<li><p><strong>b</strong> (<cite>WrappedTT</cite>) – second argument</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rerurn</dt>
+<dd class="field-even"><p>the result of inner product</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>WrappedTT</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ttax.full">
+<code class="sig-prename descclassname"><span class="pre">ttax.</span></code><code class="sig-name descname"><span class="pre">full</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tt</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ttax.base_class.TTBase</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">jax._src.numpy.lax_numpy.array</span><a class="headerlink" href="#ttax.full" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts <cite>TT-Tensor</cite> or <cite>TT-Matrix</cite> into a dense format.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ttax.fuse">
+<code class="sig-prename descclassname"><span class="pre">ttax.</span></code><code class="sig-name descname"><span class="pre">fuse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ttax.fuse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fuse a composite function to make it faster.</p>
+<p>Example:</p>
+<p>Let’s look at f(a, b, c) = &lt;a * b, c&gt; = sum_{i_1, …, i_d} a[i_1, …, i_d] b[i_1, …, i_d] c[i_1, …, i_d], as ttax.flat_inner(a * b, c) do.</p>
+<p>Function <cite>f</cite> can be suboptimal for some inputs. For example, if <cite>a</cite> and <cite>b</cite>
+are of large TT-rank, and <cite>c</cite> is of low TT-rank, implementing the same
+operation as</p>
+<blockquote>
+<div><p>ttax.flat_inner(a * c, b)</p>
+</div></blockquote>
+<p>would be much more efficient.</p>
+<p><cite>fuse</cite> automates such optimizations. You can build an optimal implementation
+of this function for any inputs by doing</p>
+<blockquote>
+<div><p>faster_f = ttax.fuse(f)</p>
+</div></blockquote>
+<p>Finally, don’t forget that in JAX to get good speed you need to wrap you
+highest level function in jit, e.g.</p>
+<blockquote>
+<div><p>faster_f = jax.jit(faster_f)</p>
+</div></blockquote>
+<p>Now, by using <cite>faster_f(a, b, c)</cite> instead of <cite>f(a, b, c)</cite> you can achieve
+a much faster cumulative time for any inputs.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ttax.is_tt_matrix">
+<code class="sig-prename descclassname"><span class="pre">ttax.</span></code><code class="sig-name descname"><span class="pre">is_tt_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><a class="headerlink" href="#ttax.is_tt_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine whether the object is a <cite>TT-Matrix</cite> or <cite>WrappedTT</cite> with underlying <cite>TT-Matrix</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><cite>True</cite> if <cite>TT-Matrix</cite> or <cite>WrappedTT(TT-Matrix)</cite>, <cite>False</cite> otherwise</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ttax.is_tt_object">
+<code class="sig-prename descclassname"><span class="pre">ttax.</span></code><code class="sig-name descname"><span class="pre">is_tt_object</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><a class="headerlink" href="#ttax.is_tt_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine whether the object is a <cite>TT-Tensor</cite>, <cite>TT-Matrix</cite> or <cite>WrappedTT</cite> with one of them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><cite>True</cite> if <cite>TT-object</cite>, <cite>False</cite> otherwise</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ttax.is_tt_tensor">
+<code class="sig-prename descclassname"><span class="pre">ttax.</span></code><code class="sig-name descname"><span class="pre">is_tt_tensor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><a class="headerlink" href="#ttax.is_tt_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine whether the object is a <cite>TT-Tensor</cite> or <cite>WrappedTT</cite> with underlying <cite>TT-Tensor</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><cite>True</cite> if <cite>TT-Tensor</cite> or <cite>WrappedTT(TT-Tensor)</cite>, <cite>False</cite> otherwise</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ttax.matmul">
+<code class="sig-prename descclassname"><span class="pre">ttax.</span></code><code class="sig-name descname"><span class="pre">matmul</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ttax.matmul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate matrix multiplication of given <cite>TT-Matrices</cite> wrapped with <cite>WrappedTT</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<cite>WrappedTT</cite>) – first argument</p></li>
+<li><p><strong>b</strong> (<cite>WrappedTT</cite>) – second argument</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rerurn</dt>
+<dd class="field-even"><p>the result of inner product</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>WrappedTT</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ttax.multiply">
+<code class="sig-prename descclassname"><span class="pre">ttax.</span></code><code class="sig-name descname"><span class="pre">multiply</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ttax.multiply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate elementwise product of 2 <cite>TT-Tensors</cite> <cite>TT-Matrices</cite> or their product by scalar. Arguments could be wrapped by <cite>WrappedTT</cite> or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>TT-object</em><em>]</em>) – first argument</p></li>
+<li><p><strong>b</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>TT-object</em><em>]</em>) – second argument</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the result of elementwise product</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>TT-object</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ttax.orthogonalize">
+<code class="sig-prename descclassname"><span class="pre">ttax.</span></code><code class="sig-name descname"><span class="pre">orthogonalize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_to_right</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ttax.orthogonalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Orthogonalize <cite>TT-cores</cite> of a <cite>TT-object</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tt</strong> (<cite>TT-Tensor</cite> or <cite>TT-Matrix</cite>) – <cite>TT-object</cite> which <cite>TT-cores</cite> would be orthogonalized</p></li>
+<li><p><strong>left_to_right</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – the direction of orthogonalization, <cite>True</cite> for left to right and <cite>False</cite> for right to left</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>TT-object</cite> with orthogonalized <cite>TT-cores</cite></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>TT-Tensor</cite> or <cite>TT-Matrix</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ttax.project">
+<code class="sig-prename descclassname"><span class="pre">ttax.</span></code><code class="sig-name descname"><span class="pre">project</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">what</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">where</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ttax.project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Project <cite>what</cite> TTs on the tangent space of <cite>where</cite> TT.</p>
+<p><code class="docutils literal notranslate"><span class="pre">project(what,</span> <span class="pre">x)</span> <span class="pre">=</span> <span class="pre">P_x(what)</span></code>
+<code class="docutils literal notranslate"><span class="pre">project(batch_what,</span> <span class="pre">x)</span> <span class="pre">=</span> <span class="pre">batch(P_x(batch_what[0]),</span> <span class="pre">...,</span> <span class="pre">P_x(batch_what[N]))</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>what</strong> (<cite>TT-Tensor</cite> or <cite>TT-Matrix</cite>) – in the case of batch returns batch with projection of each individual tensor</p></li>
+<li><p><strong>where</strong> (<cite>TT-Tensor</cite> or <cite>TT-Matrix</cite>) – on which tangent space to project</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>TT-object</cite> with the <cite>TT-ranks</cite> equal <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">tangent_space_tens.tt_ranks()</span></code></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>TT-Tensor</cite> or <cite>TT-Matrix</cite></p>
+</dd>
+</dl>
+<p>Complexity:</p>
+<p><code class="docutils literal notranslate"><span class="pre">O(d</span> <span class="pre">r_where^3</span> <span class="pre">m)</span></code> for orthogonalizing the TT-cores of <cite>where</cite>
+<code class="docutils literal notranslate"><span class="pre">+O(batch_size</span> <span class="pre">d</span> <span class="pre">r_what</span> <span class="pre">r_where</span> <span class="pre">n</span> <span class="pre">(r_what</span> <span class="pre">+</span> <span class="pre">r_where))</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">d</span></code> is the number of <cite>TT-cores</cite>: <code class="docutils literal notranslate"><span class="pre">what.ndims()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r_what</span></code> is the largest <cite>TT-rank</cite> of <cite>what</cite>: <code class="docutils literal notranslate"><span class="pre">max(what.tt_rank())</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r_where</span></code> is the largest <cite>TT-rank</cite> of <cite>where</cite></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n</span></code> is the size of the axis dimension of <cite>what</cite> and <cite>where</cite> e.g.
+for a tensor of size 4 x 4 x 4, <code class="docutils literal notranslate"><span class="pre">n</span></code> is 4;
+for a 9 x 64 matrix of raw shape (3, 3, 3) x (4, 4, 4) <code class="docutils literal notranslate"><span class="pre">n</span></code> is 12</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ttax.round">
+<code class="sig-prename descclassname"><span class="pre">ttax.</span></code><code class="sig-name descname"><span class="pre">round</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_tt_rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ttax.round" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tensor Train rounding procedure, returns a <cite>TT-object</cite> with smaller <cite>TT-ranks</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tt</strong> (<cite>TT-Tensor</cite> or <cite>TT-Matrix</cite>) – argument which ranks would be reduced</p></li>
+<li><p><strong>max_tt_rank</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>list of ints</em>) – <ul>
+<li><p>If a number, than defines the maximal <cite>TT-rank</cite> of the result.</p></li>
+<li><p>If a list of numbers, than <cite>max_tt_rank</cite> length should be d+1
+(where d is the number of dimensions) and <cite>max_tt_rank[i]</cite>
+defines the maximal (i+1)-th <cite>TT-rank</cite> of the result.</p>
+<p>The following two versions are equivalent</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">max_tt_rank</span> <span class="pre">=</span> <span class="pre">r</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_tt_rank</span> <span class="pre">=</span> <span class="pre">[1]</span> <span class="pre">+</span> <span class="pre">[r]</span> <span class="pre">*</span> <span class="pre">(d-1)</span> <span class="pre">+</span> <span class="pre">[1]</span></code></p></li>
+</ul>
+</li>
+</ul>
+</p></li>
+<li><p><strong>epsilon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – <ul>
+<li><p>If the <cite>TT-ranks</cite> are not restricted (<cite>max_tt_rank=None</cite>), then</p></li>
+</ul>
+<p>the result would be guarantied to be <cite>epsilon</cite>-close to <cite>tt</cite>
+in terms of relative Frobenius error:</p>
+<blockquote>
+<div><p><cite>||res - tt||_F / ||tt||_F &lt;= epsilon</cite></p>
+</div></blockquote>
+<ul>
+<li><p>If the <cite>TT-ranks</cite> are restricted, providing a loose <cite>epsilon</cite> may</p></li>
+</ul>
+<p>reduce the <cite>TT-ranks</cite> of the result. E.g.</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">round(tt,</span> <span class="pre">max_tt_rank=100,</span> <span class="pre">epsilon=0.9)</span></code></p>
+</div></blockquote>
+<p>will probably return you a <cite>TT-Tensor</cite> with <cite>TT-ranks</cite> close to 1, not 100.
+Note that providing a nontrivial (= not equal to <cite>None</cite>) epsilon will make
+the <cite>TT-ranks</cite> of the result change depending on the data,
+which will prevent you from using <code class="docutils literal notranslate"><span class="pre">jax.jit</span></code>
+for speeding up the computations.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>TT-object</cite> with reduced <cite>TT-ranks</cite></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>TT-Tensor</cite> or <cite>TT-Matrix</cite></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p>ValueError if <cite>max_tt_rank</cite> is less than 0, if <cite>max_tt_rank</cite> is not a number and
+not a vector of length d + 1 where d is the number of dimensions of
+the input tensor, if <cite>epsilon</cite> is less than 0.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ttax.tangent_to_deltas">
+<code class="sig-prename descclassname"><span class="pre">ttax.</span></code><code class="sig-name descname"><span class="pre">tangent_to_deltas</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tangent_element</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ttax.base_class.TT</span><span class="p"><span class="pre">,</span> </span><span class="pre">ttax.base_class.TTMatrix</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">jax._src.numpy.lax_numpy.ndarray</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#ttax.tangent_to_deltas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an element of the tangent space to deltas representation.
+Tangent space elements (outputs of <code class="docutils literal notranslate"><span class="pre">ttax.project</span></code>) look like:</p>
+<p><code class="docutils literal notranslate"><span class="pre">dP1</span> <span class="pre">V2</span> <span class="pre">...</span> <span class="pre">Vd</span> <span class="pre">+</span> <span class="pre">U1</span> <span class="pre">dP2</span> <span class="pre">V3</span> <span class="pre">...</span> <span class="pre">Vd</span> <span class="pre">+</span> <span class="pre">...</span> <span class="pre">+</span> <span class="pre">U1</span> <span class="pre">...</span> <span class="pre">Ud-1</span> <span class="pre">dPd</span></code></p>
+<p>This function takes as input an element of the tangent space and converts
+it to the list of deltas</p>
+<p><code class="docutils literal notranslate"><span class="pre">[dP1,</span> <span class="pre">...,</span> <span class="pre">dPd]</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tangent_element</strong> (<cite>TT-Tensor</cite> or <cite>TT-Matrix</cite>) – a result of <code class="docutils literal notranslate"><span class="pre">ttax.project</span></code></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of delta-cores</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quick start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Alexander Novikov and Dmitry Belousov.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

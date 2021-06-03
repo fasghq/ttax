@@ -127,7 +127,7 @@ def full_tt_matrix(tt: TTMatrix) -> jnp.array:
 
 @tt_vmap()
 def full(tt: TTBase) -> jnp.array:
-  """Converts TT or TTMatrix into a regular tensor/matrix.
+  """Converts `TT-Tensor` or `TT-Matrix` into a dense format.
   """
   if isinstance(tt, TT):
     return full_tt_tensor(tt)
@@ -146,6 +146,15 @@ def tt_tt_multiply(a, b):
 
 
 def flat_inner(a, b):
+  """Calculate inner product of given `TT-Tensors` or `TT-Matrices` wrapped with `WrappedTT`.
+  
+  :param a: first argument
+  :type a: `WrappedTT`
+  :param b: second argument
+  :type b: `WrappedTT`
+  :rerurn: the result of inner product
+  :rtype: `WrappedTT`
+  """
   tt_einsum = TTEinsum(
       inputs=[['a', I_OR_IJ, 'b'], ['c', I_OR_IJ, 'd'], ['a', 'c']],
       output=['b', 'd'],
@@ -157,6 +166,15 @@ def flat_inner(a, b):
 
 
 def matmul(a, b):
+  """Calculate matrix multiplication of given `TT-Matrices` wrapped with `WrappedTT`.
+  
+  :param a: first argument
+  :type a: `WrappedTT`
+  :param b: second argument
+  :type b: `WrappedTT`
+  :rerurn: the result of inner product
+  :rtype: `WrappedTT`
+  """
   # TODO: support TT x dense matmul.
   tt_einsum = TTEinsum(
       inputs=[['a', 'ij', 'b'], ['c', 'jk', 'd']],
@@ -302,11 +320,14 @@ def are_batches_broadcastable(tt_a, tt_b):
 
 
 def multiply(a, b):
-  """tt * tt or scalar * tt elementwise product.
-  Args:
-    a, b: Union[float, TTTensOrMat]
-  Returns:
-    TTTensOrMat
+  """Calculate elementwise product of 2 `TT-Tensors` \ `TT-Matrices` or their product by scalar. Arguments could be wrapped by `WrappedTT` or not.
+  
+  :param a: first argument
+  :type a: Union[float, TT-object]
+  :param b: second argument
+  :type b: Union[float, TT-object]
+  :return: the result of elementwise product
+  :rtype: `TT-object`
   """
   if not is_tt_object(a) or not is_tt_object(b):
     return multiply_by_scalar(a, b)
