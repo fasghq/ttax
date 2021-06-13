@@ -31,11 +31,11 @@ I_OR_IJ = 'I_OR_IJ'
 
 
 class WrappedTT:
-  """A class which wraps TT, which is needed for fusion to work.
+  """A class which wraps `TT-object`, which is needed for fusion to work.
 
-  Base TT class can only have jnp.array objects so that you can pass it into
+  Base `TT-object` class can only have jnp.array objects so that you can pass it into
   jitted function. But, for fusing two functions together we need to track which
-  operation created a TT object, so while fusing ops we wrap TT objects with
+  operation created a `TT-object`, so while fusing ops we wrap `TT-objects` with
   this class, to track that.
   """
 
@@ -58,51 +58,113 @@ class WrappedTT:
 
   @property
   def tt_cores(self):
+    """Get the list of `TT-cores` of underlying `TT-object`.
+    
+    :return: `TT-cores`
+    :rtype: list
+    """
     return self.tt.tt_cores
 
   @property
   def batch_shape(self):
+    """Get the list representing the shape of the batch of underlying `TT-object`. 
+    
+    :return: batch shape
+    :rtype: list
+    """
     return self.tt.batch_shape
 
   @property
   def shape(self):
+    """Get the tuple representing the shape of underlying `TT-object`. 
+    In batch case includes the shape of the batch.
+    
+    :return: `TT-Tensor` shape with batch shape
+    :rtype: tuple
+    """
     return self.tt.shape
 
   @property
   def axis_dim(self):
+    """Get the position of mode axis in underlying `TT-core`.
+    It could differ according to the batch shape.
+    
+    :return: index
+    :rtype: int
+    """
     return self.tt.axis_dim
 
   @property
   def num_batch_dims(self):
+    """Get the number of batch dimensions for batch of underlying `TT-object`.
+    
+    :return: number of batch dimensions
+    :rtype: int
+    """
     return self.tt.num_batch_dims
 
   @property
   def is_tt_matrix(self):
+    """Determine whether the underlying `TT-object` is a `TT-Matrix`.
+
+    :return: `True` if `TT-Matrix`, `False` if `TT-Tensor`
+    :rtype: bool
+    """
     return self.tt.is_tt_matrix
   
   @property
   def tt_ranks(self):
+    """Get `TT-ranks` of the underlying `TT-object` in amount of ``ndim + 1``.
+    The first `TT-rank` and the last one equals to `1`.
+    
+    :return: `TT-ranks`
+    :rtype: list
+    """
     return self.tt.tt_ranks
 
   @property
   def ndim(self):
+    """Get the number of dimensions of the underlying `TT-object`.
+    
+    :return: dimensions number
+    :rtype: int
+    """
     return self.tt.ndim
 
   @property
   def dtype(self):
+    """Represents the `dtype` of elements in underlying `TT-object`.
+    
+    :return: `dtype` of elements
+    :rtype: dtype
+    """
     return self.tt.dtype
 
   @property
   def raw_tensor_shape(self):
+    """Get the tuple representing the shape of underlying `TT-object`. 
+    Depends on ``raw_tensor_shape``.
+    
+    :return: shape
+    :rtype: list
+    """
     return self.tt.raw_tensor_shape
 
   @property
   def batch_loc(self):
+    """Represents the batch indexing for underlying `TT-object`.
+    Wraps `TT-object` by special `BatchIndexing` class
+    with overloaded ``__getitem__`` method.
+    
+    Example:
+      ``tt.batch_loc[1, :, :]``
+    """
     return self.tt.batch_loc
 
 
 class TTEinsum:
-
+  """A class which contains einsum rule, which is needed for fusion to work.
+  """
   def __init__(self, inputs, output, how_to_apply, order='left-to-right'):
     self.inputs = inputs
     self.output = output
@@ -120,7 +182,11 @@ class TTEinsum:
     return ','.join(['...' + a for a in inputs]) + '->...' + ''.join(self.output)
 
   def apply_mapping(self, mapping: Dict[str, str]):
-    """Rename letters according to the given mapping."""
+    """Rename letters according to the given mapping.
+    
+    :return: new `TTEinsum` with renamed latters
+    :rtype: `TTEinsum`
+    """
     new_inputs = []
     for inp in self.inputs:
       new_inputs.append(apply_single_mapping(inp, mapping))
@@ -129,14 +195,18 @@ class TTEinsum:
                     how_to_apply=self.how_to_apply)
 
   def change_input(self, input_idx: int, new_inputs: List):
-    """Change argument input_idx into new_inputs.
+    """Change argument ``input_idx`` into ``new_inputs``.
 
     E.g.
       tt_einsum = TTEinsum(inputs=[['a', 'i', 'b'], ['c', 'i', 'd']],
-                           output=['ac', 'i', 'bd'],
-                           how_to_apply='independent')
+      output=['ac', 'i', 'bd'],
+      how_to_apply='independent')
+      
       tt_einsum.change_input(0, [['e', 'i', 'f'], ['g', 'i', 'h']])
-      print(tt_einsum.to_vanilla_einsum())  # 'eif,gih,cid->acibd'.
+      
+      print(tt_einsum.to_vanilla_einsum())  
+      
+    will return 'eif,gih,cid->acibd'
     """
     prefix = self.inputs[:input_idx]
     postfix = self.inputs[input_idx + 1:]
@@ -144,7 +214,7 @@ class TTEinsum:
     return TTEinsum(new_inputs, self.output, self.how_to_apply)
 
   def to_distinct_letters(self, distinct_from):
-    """Rename letters to make them distinct from letters used in distinct_from."""
+    """Rename letters to make them distinct from letters used in ``distinct_from``."""
     distinct_from_einsum = distinct_from.to_vanilla_einsum()
     # TODO: add upper case
     vacant_letters = [l for l in ascii_lowercase if l not in distinct_from_einsum]
@@ -156,7 +226,7 @@ class TTEinsum:
     return self.apply_mapping(mapping)
 
   def resolve_i_or_ij(self, is_tt_matrix):
-    """Return a version of TTEinsum with I_OR_IJ changed to either 'i' or 'ij'.
+    """Return a version of `TTEinsum` with ``I_OR_IJ`` changed to either 'i' or 'ij'.
     """
     def resolve(el):
       if el == I_OR_IJ:
@@ -245,13 +315,17 @@ def to_function(tt_einsum: TTEinsum) -> Callable:
   """Compile TT-einsum into a function.
 
   Example:
+  
   def multiply(a, b):
+  
     tt_einsum = TTEinsum(
-        inputs=[['a', 'i', 'b'], ['c', 'i', 'd']],
-        output=['ac', 'i', 'bd'],
-        how_to_apply='independent'
+    inputs=[['a', 'i', 'b'], ['c', 'i', 'd']],
+    output=['ac', 'i', 'bd'],
+    how_to_apply='independent'
     )
+    
     func = tt_einsum.to_function()
+    
     return func(a, b)
   """
   if tt_einsum.how_to_apply == 'independent':
@@ -366,12 +440,13 @@ def fuse(func):
 
 
 def unwrap_tt(arg):
-  """Unwraps argument if it is of WrappedTT class, 
-     otherwise just returns the argument.
-  Argument: 
-    WrappedTT or TTTensOrMat
-  Returns:
-    TTTensOrMat
+  """Unwraps argument if it is of `WrappedTT` class, 
+  otherwise just returns the argument.
+
+  :type arg: `WrappedTT` or `TTTensOrMat`
+  :param arg: argument to unwrap
+  :rtype: `TTTensOrMat`
+  :return: unwrapped argument
   """
   if isinstance(arg, WrappedTT):
     return arg.tt

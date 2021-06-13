@@ -5,7 +5,9 @@ import flax
 
 
 class TTBase:
-
+  """Represents the base for both `TT-Tensor` and `TT-Matrix` (`TT-object`).
+  Includes some basic routines and properties.
+  """
   def __mul__(self, other):
     # We can't import ops in the beginning since it creates cyclic dependencies.
     from ttax import ops
@@ -28,28 +30,62 @@ class TTBase:
 
   @property
   def axis_dim(self):
+    """Get the position of mode axis in `TT-core`.
+    It could differ according to the batch shape.
+    
+    :return: index
+    :rtype: int
+    """
     return self.num_batch_dims + 1
 
   @property
   def batch_shape(self):
+    """Get the list representing the shape of the batch of `TT-object`. 
+    
+    :return: batch shape
+    :rtype: list
+    """
     return self.tt_cores[0].shape[:self.num_batch_dims]
 
   @property
   def tt_ranks(self):
+    """Get `TT-ranks` of the `TT-object` in amount of ``ndim + 1``.
+    The first `TT-rank` and the last one equals to `1`.
+    
+    :return: `TT-ranks`
+    :rtype: list
+    """
     ranks = [c.shape[self.num_batch_dims] for c in self.tt_cores]
     ranks.append(self.tt_cores[-1].shape[-1])
     return ranks
   
   @property
   def ndim(self):
+    """Get the number of dimensions of the `TT-object`.
+    
+    :return: dimensions number
+    :rtype: int
+    """
     return len(self.tt_cores)
 
   @property
   def dtype(self):
+    """Represents the `dtype` of elements in `TT-object`.
+    
+    :return: `dtype` of elements
+    :rtype: dtype
+    """
     return self.tt_cores[0].dtype
 
   @property
   def batch_loc(self):
+    """Represents the batch indexing for `TT-object`.
+    Wraps `TT-object` by special `BatchIndexing` class
+    with overloaded ``__getitem__`` method.
+    
+    Example:
+      ``tt.batch_loc[1, :, :]``
+    """
     return BatchIndexing(self)
 
 

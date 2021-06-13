@@ -16,20 +16,22 @@ from ttax.utils import is_tt_object
 
 def tt_vmap(num_batch_args=None):
   """Decorator which makes a function support batch TT-inputs.
-  Arg:
-    num_batch_args - integer or None.
-      If None, than function will be mapped over all arguments.
-      If integer, specifies the count of first arguments to map over, e.g.
-      num_batch_args=n means that function will be mapped over 
-      first n arguments.
-  Returns:
-    Decorator
+  
+  :type num_batch_args: int or None
+  :param num_batch_args: The amount of arguments that are batches of `TT-objects`.
+  
+    - If None, than function will be mapped over all arguments.
+    - If integer, specifies the count of first arguments to map over, e.g.
+      `num_batch_args=n` means that function will be mapped over 
+      first `n` arguments.
+  :return: Decorator
+  
   Comments:
-    The function is vmapped num_batch_dims times, as it supports 
+    The function is vmapped `num_batch_dims` times, as it supports 
     multidimensional batches. The number of batch dimension to be 
-    mapped over is shown by num_batch_dims property and should be 
+    mapped over is shown by `num_batch_dims` property and should be 
     the same for all args of the function, by which it will be mapped over. 
-    Otherwise such axis should be specified by num_batch_args.
+    Otherwise such axis should be specified by `num_batch_args`.
   """
   def tt_vmap_fixed_batching_pattern(func):
     @functools.wraps(func)
@@ -187,20 +189,23 @@ def matmul(a, b):
 
 @tt_vmap()
 def add(tt_a, tt_b):
-  """Returns a TensorTrain corresponding to elementwise sum tt_a + tt_b.
-  The shapes of tt_a and tt_b should coincide.
+  """Returns a `TT-object` corresponding to elementwise sum `tt_a + tt_b`.
+  The shapes of `tt_a` and `tt_b` should coincide.
   Supports broadcasting, e.g. you can add a tensor train with
   batch size 7 and a tensor train with batch size 1:
-  tt_batch.add(tt_single.batch_loc[np.newaxis])
-  where tt_single.batch_loc[np.newaxis] 
+  
+  ``tt_batch.add(tt_single.batch_loc[np.newaxis])``
+  
+  where ``tt_single.batch_loc[np.newaxis]`` 
   creates a singleton batch dimension.
-  Args:
-    tt_a: TT or TT-Matrix
-    tt_b: TT or TT-Matrix
-  Returns
-    TT or TT-Matrix
-  Raises
-    ValueError if the arguments shapes do not coincide.
+
+  :type tt_a: `TT-Tensor` or `TT-Matrix`
+  :param tt_a: first argument
+  :type tt_b: `TT-Tensor` or `TT-Matrix`
+  :param tt_b: second argument
+  :rtype: `TT-Tensor` or `TT-Matrix`
+  :return: `tt_a + tt_b`
+  :raises [ValueError]: if the arguments shapes do not coincide
   """
   tt_a = unwrap_tt(tt_a)
   tt_b = unwrap_tt(tt_b)
@@ -279,15 +284,17 @@ def _add_matrix_cores(tt_a, tt_b):
 
 def are_shapes_equal(tt_a, tt_b):
   """Returns the result of equality check of 2 tensors' shapes: 
-  True if shapes are equal and False otherwise.
-  The arguments should be both TT-tensors or both TT-matrices.
+  `True` if shapes are equal and `False` otherwise.
+  The arguments should be both `TT-Tensors` or both `TT-Matrices`.
   The arguments should have the same tensor shape
-  but potentially different TT-ranks.
-  Args:
-    tt_a: TT or TT-Matrix
-    tt_b: TT or TT-Matrix
-  Returns:
-    tensor_check: bool
+  but their `TT-ranks` differ.
+
+  :type tt_a: `TT-Tensor` or `TT-Matrix`
+  :param tt_a: first argument to check
+  :type tt_b: `TT-Tensor` or `TT-Matrix`
+  :param tt_b: second argument to check
+  :return: `tensor_check` - the result of shape check
+  :rtype: bool
   """
   tensor_check = True
   if tt_a.is_tt_matrix != tt_b.is_tt_matrix:
@@ -300,14 +307,16 @@ def are_shapes_equal(tt_a, tt_b):
 
 def are_batches_broadcastable(tt_a, tt_b):
   """Returns the result of compatibility check of 2 tensors' batches: 
-  True if batches are compatible and False otherwise.
+  `True` if batches are compatible and `False` otherwise.
   The batch sizes should be equal otherwise at least one of them 
   should equal to 1 for broadcasting to be available.
-  Args:
-    tt_a: TT or TT-Matrix
-    tt_b: TT or TT-Matrix
-  Returns:
-    bool
+  
+  :type tt_a: `TT-Tensor` or `TT-Matrix`
+  :param tt_a: first argument to check
+  :type tt_b: `TT-Tensor` or `TT-Matrix`
+  :param tt_b: second argument to check
+  :return: the result of broadcasting check
+  :rtype: bool
   """
   if tt_a.num_batch_dims != tt_b.num_batch_dims:
     return False

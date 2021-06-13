@@ -15,6 +15,7 @@ def round(tt, max_tt_rank=None, epsilon=None):
   :type tt: `TT-Tensor` or `TT-Matrix`
   :type max_tt_rank: int or list of ints
   :param max_tt_rank: 
+  
     - If a number, than defines the maximal `TT-rank` of the result. 
     - If a list of numbers, than `max_tt_rank` length should be d+1 
       (where d is the number of dimensions) and `max_tt_rank[i]`
@@ -24,16 +25,18 @@ def round(tt, max_tt_rank=None, epsilon=None):
       
       - ``max_tt_rank = r``
       
-      - ``max_tt_rank = [1] + [r] * (d-1) + [1]``   
+      - ``max_tt_rank = [1] + [r] * (d-1) + [1]``  
+       
   :type epsilon: float or None
   :param epsilon:
-      - If the `TT-ranks` are not restricted (`max_tt_rank=None`), then
+  
+    - If the `TT-ranks` are not restricted (`max_tt_rank=None`), then
       the result would be guarantied to be `epsilon`-close to `tt`
       in terms of relative Frobenius error:
       
         `||res - tt||_F / ||tt||_F <= epsilon`
         
-      - If the `TT-ranks` are restricted, providing a loose `epsilon` may
+    - If the `TT-ranks` are restricted, providing a loose `epsilon` may
       reduce the `TT-ranks` of the result. E.g.
       
         ``round(tt, max_tt_rank=100, epsilon=0.9)``
