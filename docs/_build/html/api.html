@@ -62,10 +62,6 @@
           
             
             
-              <div class="version">
-                0.0.2
-              </div>
-            
           
 
           
@@ -1128,14 +1124,18 @@ but their <cite>TT-ranks</cite> differ.</p>
 <dl class="py function">
 <dt id="ttax.ops.multiply_by_scalar">
 <code class="sig-prename descclassname"><span class="pre">ttax.ops.</span></code><code class="sig-name descname"><span class="pre">multiply_by_scalar</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ttax.ops.multiply_by_scalar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the result of multiplication so called TT-object
-(TTTensOrMat or WrappedTT) by scalar. Takes 2 arguments
-as input, one of which is TT-object and other is a scalar.
-Does not depends on arguments order.
-Returns:yj</p>
-<blockquote>
-<div><p>TTTensOrMat</p>
-</div></blockquote>
+<dd><p>Returns the result of multiplication so called <cite>TT-object</cite>
+(<cite>TTTensOrMat</cite> or <cite>WrappedTT</cite>) by scalar. Takes 2 arguments
+as input, one of which is <cite>TT-object</cite> and other is a scalar.
+Does not depends on arguments order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the result of multiplication by scalar</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><cite>TTTensOrMat</cite></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -2334,29 +2334,27 @@ it’s shape is (12, 21).</p>
 <dl class="py function">
 <dt id="ttax.riemannian.deltas_to_tangent">
 <code class="sig-prename descclassname"><span class="pre">ttax.riemannian.</span></code><code class="sig-name descname"><span class="pre">deltas_to_tangent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deltas</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">jax._src.numpy.lax_numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tt</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ttax.base_class.TT" title="ttax.base_class.TT"><span class="pre">ttax.base_class.TT</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="#ttax.base_class.TTMatrix" title="ttax.base_class.TTMatrix"><span class="pre">ttax.base_class.TTMatrix</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ttax.base_class.TT" title="ttax.base_class.TT"><span class="pre">ttax.base_class.TT</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="#ttax.base_class.TTMatrix" title="ttax.base_class.TTMatrix"><span class="pre">ttax.base_class.TTMatrix</span></a><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#ttax.riemannian.deltas_to_tangent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts deltas representation of tangent space vector to TT object.
-Takes as input a list of [dP1, …, dPd] and returns</p>
-<blockquote>
-<div><p>dP1 V2 … Vd + U1 dP2 V3 … Vd + … + U1 … Ud-1 dPd.</p>
-</div></blockquote>
+<dd><p>Converts deltas representation of tangent space vector to <cite>TT-object</cite>.
+Takes as input a list of [dP1, …, dPd] and returns
+dP1 V2 … Vd + U1 dP2 V3 … Vd + … + U1 … Ud-1 dPd.</p>
 <p>This function is hard to use correctly because deltas should obey the
 so called gauge conditions. If they don’t, the function will silently return
-incorrect result. That is why this function is not imported in __init__.
-:param deltas: a list of deltas (essentially TT-cores) obeying the gauge</p>
-<blockquote>
-<div><p>conditions.</p>
-</div></blockquote>
+incorrect result. That is why this function is not imported in __init__.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>tt</strong> – TT (or TTMatrix) object on which the tangent space tensor represented
-by delta is projected.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>deltas</strong> – a list of deltas (essentially <cite>TT-cores</cite>) obeying the gauge
+conditions.</p></li>
+<li><p><strong>tt</strong> (<cite>TT-Tensor</cite> or <cite>TT-Matrix</cite>) – object on which the tangent space tensor represented
+by delta is projected.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>TT (or TTMatrix) object constructed from deltas, that is from the tangent</dt><dd><p>space at point <cite>tt</cite>.</p>
+<dd class="field-even"><p>object constructed from deltas, that is from the tangent
+space at point <cite>tt</cite>.</p>
 </dd>
-</dl>
-</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>TT-Tensor</cite> or <cite>TT-Matrix</cite></p>
 </dd>
 </dl>
 </dd></dl>

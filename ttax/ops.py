@@ -345,12 +345,13 @@ def multiply(a, b):
 
 
 def multiply_by_scalar(a, b):
-  """Returns the result of multiplication so called TT-object 
-  (TTTensOrMat or WrappedTT) by scalar. Takes 2 arguments 
-  as input, one of which is TT-object and other is a scalar. 
+  """Returns the result of multiplication so called `TT-object` 
+  (`TTTensOrMat` or `WrappedTT`) by scalar. Takes 2 arguments 
+  as input, one of which is `TT-object` and other is a scalar. 
   Does not depends on arguments order. 
-  Returns:yj
-    TTTensOrMat
+  
+  :return: the result of multiplication by scalar
+  :rtype: `TTTensOrMat`
   """
   if is_tt_object(a):
     return _mul_by_scalar(a, b)

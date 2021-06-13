@@ -63,20 +63,22 @@ def _deltas_tt_vmap(_deltas_to_tangent):
 @_deltas_tt_vmap
 def deltas_to_tangent(deltas: List[jnp.ndarray],
                       tt: TTTensOrMat) -> TTTensOrMat:
-  """Converts deltas representation of tangent space vector to TT object.
+  """Converts deltas representation of tangent space vector to `TT-object`.
   Takes as input a list of [dP1, ..., dPd] and returns
-    dP1 V2 ... Vd + U1 dP2 V3 ... Vd + ... + U1 ... Ud-1 dPd.
+  dP1 V2 ... Vd + U1 dP2 V3 ... Vd + ... + U1 ... Ud-1 dPd.
+  
   This function is hard to use correctly because deltas should obey the
   so called gauge conditions. If they don't, the function will silently return
   incorrect result. That is why this function is not imported in __init__.
-  Args:
-      deltas: a list of deltas (essentially TT-cores) obeying the gauge
-        conditions.
-      tt: TT (or TTMatrix) object on which the tangent space tensor represented
-        by delta is projected.
-  Returns:
-      TT (or TTMatrix) object constructed from deltas, that is from the tangent
-        space at point `tt`.
+  
+  :param deltas: a list of deltas (essentially `TT-cores`) obeying the gauge
+                 conditions.
+  :param tt: object on which the tangent space tensor represented
+             by delta is projected.
+  :type tt: `TT-Tensor` or `TT-Matrix`
+  :return: object constructed from deltas, that is from the tangent
+           space at point `tt`.
+  :rtype: `TT-Tensor` or `TT-Matrix`
   """
   cores = []
   dtype = tt.dtype
