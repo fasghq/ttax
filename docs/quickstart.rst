@@ -14,6 +14,7 @@ Let's import some libraries:
     import jax
     import ttax
     import numpy as np
+    import jax.numpy as jnp
     
 Converting to and from TT-format
 --------------------------------
