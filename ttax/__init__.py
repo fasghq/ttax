@@ -31,6 +31,3 @@ from ttax.random_ import matrix
 from ttax.utils import is_tt_tensor
 from ttax.utils import is_tt_matrix
 from ttax.utils import is_tt_object
-
-from ttax.autodiff import grad
-from ttax.autodiff import hessian_vector_product
