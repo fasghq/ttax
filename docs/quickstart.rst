@@ -14,6 +14,7 @@ Let's import some libraries:
     import jax
     import ttax
     import numpy as np
+    import jax.numpy as jnp
     
 Converting to and from TT-format
 --------------------------------
@@ -24,7 +25,7 @@ In code below we generate a random TT-tensor of size 10 x 5 x 2 with TT-rank = 3
     
     rng = jax.random.PRNGKey(42)
     dtype = jnp.float32
-    a_tt = ttax.random_.tensor(rng, [10, 5, 2], tt_rank=3, dtype=dtype)
+    a_tt = ttax.random.tensor(rng, [10, 5, 2], tt_rank=3, dtype=dtype)
     a_dense = ttax.full(a_tt)
     
 a_tt stores the factorized representation of the tensor, namely it stores the tensor as a product of 3 smaller tensors which are called TT-cores. You can access the TT-cores directly.
@@ -37,13 +38,13 @@ Arithmetic operations
 
 TTAX provides different operations that can be applied to the tensors in the TT-format. 
 
-Let's create several random TT-tensors of shape 3x4x5 and provide some arithmetic operations (sum and elementwise product) with them.
+Let's create several random TT-tensors of shape 3x4x5 and apply some arithmetic operations (sum and elementwise product) to them.
 
 .. code-block:: python
 
     rng = jax.random.PRNGKey(41)
-    a_tt = ttax.random_.tensor(rng, [3, 4, 5], tt_rank=30, dtype=dtype)
-    b_tt = ttax.random_.tensor(rng, [3, 4, 5], tt_rank=30, dtype=dtype)
+    a_tt = ttax.random.tensor(rng, [3, 4, 5], tt_rank=30, dtype=dtype)
+    b_tt = ttax.random.tensor(rng, [3, 4, 5], tt_rank=30, dtype=dtype)
     sum_tt = a_tt + b_tt
     prod_tt = a_tt * b_tt
     twice_a_tt = 2 * a_tt
@@ -86,7 +87,7 @@ Let’s say that you have a matrix of size 8 x 27. You can convert it into the m
 .. code-block:: python
 
     rng = jax.random.PRNGKey(41)
-    a_matrix_tt = ttax.random_.matrix(rng, ((2, 2, 2), (3, 3, 3)), tt_rank=4, dtype=dtype)
+    a_matrix_tt = ttax.random.matrix(rng, ((2, 2, 2), (3, 3, 3)), tt_rank=4, dtype=dtype)
     twice_a_matrix_tt = 2.0 * a_matrix_tt
     prod_tt = a_matrix_tt * a_matrix_tt
 
@@ -97,10 +98,10 @@ Let’s say that you have a matrix of size 8 x 27. You can convert it into the m
     left_shape = (2, 3, 4)
     sum_shape = (4, 3, 5)
     right_shape = (4, 4, 4)
-    tt_a = ttax.random_.matrix(rng1, (left_shape, sum_shape), tt_rank=3, dtype=dtype)
-    tt_b = ttax.random_.matrix(rng2, (sum_shape, right_shape), tt_rank=[1, 4, 3, 1],
+    tt_a = ttax.random.matrix(rng1, (left_shape, sum_shape), tt_rank=3, dtype=dtype)
+    tt_b = ttax.random.matrix(rng2, (sum_shape, right_shape), tt_rank=[1, 4, 3, 1],
                                dtype=dtype)
-    res_actual = ttax.full(ttax.ops.matmul(tt_a, tt_b))
+    res_actual = ttax.full(ttax.matmul(tt_a, tt_b))
     res_desired = ttax.full(tt_a) @ ttax.full(tt_b)
     np.testing.assert_allclose(res_actual, res_desired, 1e-3)
     
@@ -115,9 +116,9 @@ Let's see how it works. We create 2 batches of TT-tensors of the same batch size
 
     rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
     dtype = jnp.float32
-    tt_a = ttax.random_.tensor(rng1, (2, 1, 3, 4), tt_rank=2, batch_shape=(3,),
+    tt_a = ttax.random.tensor(rng1, (2, 1, 3, 4), tt_rank=2, batch_shape=(3,),
                       dtype=dtype)
-    tt_b = ttax.random_.tensor(rng2, (2, 1, 3, 4), tt_rank=[1, 2, 4, 3, 1],
+    tt_b = ttax.random.tensor(rng2, (2, 1, 3, 4), tt_rank=[1, 2, 4, 3, 1],
                       batch_shape=(3,), dtype=dtype)
     res_actual = ttax.ops.full(tt_a + tt_b)
     res_desired = ttax.ops.full(tt_a) + ttax.ops.full(tt_b)
@@ -132,7 +133,7 @@ You can use tensor indexing to get specified element / slice.
 .. code-block:: python
 
     rng = jax.random.PRNGKey(41)
-    tt = ttax.random_.tensor(rng, [2, 3, 4])
+    tt = ttax.random.tensor(rng, [2, 3, 4])
     print(tt[1, :, :].shape, "<- 2D Tensor-Train")
     print(tt[1:2, :, :].shape, "<- 3D Tensor-Train")
     
@@ -141,7 +142,7 @@ Similar idea for batch indexing but with a slightly different syntax.
 .. code-block:: python
     
     rng = jax.random.PRNGKey(41)
-    tt = ttax.random_.tensor(rng, [2, 3, 4], tt_rank=2, batch_shape=(3, 3, 3,))
+    tt = ttax.random.tensor(rng, [2, 3, 4], tt_rank=2, batch_shape=(3, 3, 3,))
     tt.batch_loc[1, :, :]
     
 Speeding up your code
@@ -156,9 +157,9 @@ Below is the example of how to use such speeding up and the difference it provid
 .. code-block:: python
 
     rng = jax.random.PRNGKey(42)
-    tt_a = ttax.random_.tensor(rng, [3, 4, 5], tt_rank=30)
-    tt_b = ttax.random_.tensor(rng, [3, 4, 5], tt_rank=30)
-    tt_c = ttax.random_.tensor(rng, [3, 4, 5], tt_rank=1)
+    tt_a = ttax.random.tensor(rng, [3, 4, 5], tt_rank=30)
+    tt_b = ttax.random.tensor(rng, [3, 4, 5], tt_rank=30)
+    tt_c = ttax.random.tensor(rng, [3, 4, 5], tt_rank=1)
     
 .. code-block:: python
     
