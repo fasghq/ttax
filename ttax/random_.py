@@ -7,20 +7,7 @@ from ttax.base_class import TTMatrix
 
 
 def tensor(rng, shape, tt_rank=2, batch_shape=None, dtype=jnp.float32):
-  """Generate a random `TT-Tensor` of the given shape and `TT-rank`.
-  
-  :param rng: JAX PRNG key
-  :type rng: random state is described by two unsigned 32-bit integers
-  :param shape: desired tensor shape
-  :type shape: array
-  :param tt_rank: desired `TT-ranks` of `TT-Tensor`
-  :type tt_rank: single number for equal `TT-ranks` or array specifying all `TT-ranks`
-  :param batch_shape: desired batch shape of `TT-Tensor`
-  :type batch_shape: array
-  :param dtype: type of elements in `TT-Tensor`
-  :type dtype: `dtype`
-  :return: generated `TT-Tensor`
-  :rtype: TT
+  """Generate a random TT-tensor of the given shape and TT-rank.
   """
   shape = np.array(shape)
   tt_rank = np.array(tt_rank)
@@ -45,20 +32,7 @@ def tensor(rng, shape, tt_rank=2, batch_shape=None, dtype=jnp.float32):
 
 
 def matrix(rng, shape, tt_rank=2, batch_shape=None, dtype=jnp.float32):
-  """Generate a random `TT-Matrix` of the given shape and `TT-rank`.
-    
-  :param rng: JAX PRNG key
-  :type rng: random state is described by two unsigned 32-bit integers
-  :param shape: desired tensor shape
-  :type shape: array
-  :param tt_rank: desired `TT-ranks` of `TT-Matrix`
-  :type tt_rank: single number for equal `TT-ranks` or array specifying all `TT-ranks`
-  :param batch_shape: desired batch shape of `TT-Matrix`
-  :type batch_shape: array
-  :param dtype: type of elements in `TT-Matrix`
-  :type dtype: `dtype`
-  :return: generated `TT-Matrix`
-  :rtype: TTMatrix
+  """Generate a random TT-matrix of the given shape and TT-rank.
   """
   shape = [np.array(shape[0]), np.array(shape[1])]
   tt_rank = np.array(tt_rank)
