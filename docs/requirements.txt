@@ -1,6 +1,0 @@
-ipykernel
-nbsphinx
-numpy
-jax
-flax
-dm-tree
