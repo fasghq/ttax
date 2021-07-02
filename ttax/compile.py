@@ -18,7 +18,7 @@ import tree
 import opt_einsum as oe
 import numpy as np
 import jax.numpy as jnp
-from string import ascii_lowercase
+from string import ascii_lowercase, ascii_uppercase
 import copy
 
 from ttax import ops
@@ -103,20 +103,37 @@ class WrappedTT:
 
 class TTEinsum:
 
-  def __init__(self, inputs, output, how_to_apply):
+  def __init__(self, inputs, output, how_to_apply, batch_einsum_rule=None):
     self.inputs = inputs
     self.output = output
     self.how_to_apply = how_to_apply
+    self.batch_einsum_rule = batch_einsum_rule
 
     if how_to_apply not in ['independent', 'cumulative']:
       raise ValueError('Unsupported "how_to_apply" type "%s"' % how_to_apply)
+
+  def set_batch_einsum_rule(self, batch_einsum_rule):
+    assert self.batch_einsum_rule is None
+    tt_einsum = copy.deepcopy(self)
+    tt_einsum.batch_einsum_rule = batch_einsum_rule
+    return tt_einsum
 
   def to_vanilla_einsum(self):
     """Build regular einsum."""
     inputs = []
     for inp in self.inputs:
       inputs.append(''.join(inp))
-    return ','.join(['...' + a for a in inputs]) + '->...' + ''.join(self.output)
+    return ','.join(inputs) + '->' + ''.join(self.output)
+
+  def resolve_batch_einsum_rule(self, num_batch_dimensions):
+    # assert self.batch_einsum_rule only ...
+    if num_batch_dimensions == 0:
+      return self
+    batch_letters = ascii_uppercase[:num_batch_dimensions]
+    # assert batch_letters not in self.to_vanilla_einsum()
+    tt_einsum = copy.deepcopy(self)
+    tt_einsum.batch_einsum_rule = ','.join([batch_letters] * num_batch_dimensions) + '->' + batch_letters
+    return
 
   def apply_mapping(self, mapping: Dict[str, str]):
     """Rename letters according to the given mapping."""
@@ -144,6 +161,7 @@ class TTEinsum:
 
   def to_distinct_letters(self, distinct_from):
     """Rename letters to make them distinct from letters used in distinct_from."""
+    assert that either no ... or everything is ... in batch rules
     distinct_from_einsum = distinct_from.to_vanilla_einsum()
     # TODO: add upper case
     vacant_letters = [l for l in ascii_lowercase if l not in distinct_from_einsum]
@@ -207,6 +225,9 @@ def _fuse_tt_einsums(tt_einsum: TTEinsum,
       'a' changes to 'lm', 'i' changes to 'n' and 'b' changes to 'op'.
   """
   curr_tt_einsum = copy.deepcopy(tt_einsum)
+
+  if batch einsum rule anywhere, call .resolve_batch_einsum_rule everywhere.
+
   curr_tt_einsum_inp_idx = 0
   new_tensor_args = []
   for arg_idx, arg in enumerate(tensor_args):
@@ -260,7 +281,7 @@ def to_function(tt_einsum: TTEinsum) -> Callable:
 
 
 def compile_independent(tt_einsum: TTEinsum) -> Callable:
-  def new_func(*args):
+  def new_func(*args, batch_einsum=None):
     are_tt_matrix_inputs = args[0].is_tt_matrix
     tt_einsum_ = tt_einsum.resolve_i_or_ij(are_tt_matrix_inputs)
 
