@@ -5,7 +5,9 @@ import flax
 
 
 class TTBase:
-
+  """Represents the base for both `TT-Tensor` and `TT-Matrix` (`TT-object`).
+  Includes some basic routines and properties.
+  """
   def __mul__(self, other):
     # We can't import ops in the beginning since it creates cyclic dependencies.
     from ttax import ops
@@ -28,55 +30,119 @@ class TTBase:
 
   @property
   def axis_dim(self):
+    """Get the position of mode axis in `TT-core`.
+    It could differ according to the batch shape.
+    
+    :return: index
+    :rtype: int
+    """
     return self.num_batch_dims + 1
 
   @property
   def batch_shape(self):
+    """Get the list representing the shape of the batch of `TT-object`. 
+    
+    :return: batch shape
+    :rtype: list
+    """
     return self.tt_cores[0].shape[:self.num_batch_dims]
 
   @property
   def tt_ranks(self):
+    """Get `TT-ranks` of the `TT-object` in amount of ``ndim + 1``.
+    The first `TT-rank` and the last one equals to `1`.
+    
+    :return: `TT-ranks`
+    :rtype: list
+    """
     ranks = [c.shape[self.num_batch_dims] for c in self.tt_cores]
     ranks.append(self.tt_cores[-1].shape[-1])
     return ranks
   
   @property
   def ndim(self):
+    """Get the number of dimensions of the `TT-object`.
+    
+    :return: dimensions number
+    :rtype: int
+    """
     return len(self.tt_cores)
 
   @property
   def dtype(self):
+    """Represents the `dtype` of elements in `TT-object`.
+    
+    :return: `dtype` of elements
+    :rtype: dtype
+    """
     return self.tt_cores[0].dtype
 
   @property
   def batch_loc(self):
+    """Represents the batch indexing for `TT-object`.
+    Wraps `TT-object` by special `BatchIndexing` class
+    with overloaded ``__getitem__`` method.
+    
+    Example:
+      ``tt.batch_loc[1, :, :]``
+    """
     return BatchIndexing(self)
 
 
 
 @flax.struct.dataclass
 class TT(TTBase):
+  """Represents a `TT-Tensor` object as a list of `TT-cores`.
+  
+  `TT-Tensor` cores take form (r_l, n, r_r), where
+  
+  - r_l, r_r are `TT-ranks`
+  - n makes `TT-Tensor` shape
+  """
   tt_cores: List[jnp.array]
 
   @property
   def shape(self):
+    """Get the tuple representing the shape of `TT-Tensor`. 
+    In batch case includes the shape of the batch.
+    
+    :return: `TT-Tensor` shape with batch shape
+    :rtype: tuple
+    """
     no_batch_shape = [c.shape[self.axis_dim] for c in self.tt_cores]
     return tuple(list(self.batch_shape) + no_batch_shape)
 
   @property
   def num_batch_dims(self):
+    """Get the number of batch dimensions for batch of `TT-Tensors`.
+    
+    :return: number of batch dimensions
+    :rtype: int
+    """
     return len(self.tt_cores[0].shape) - 3
 
   @property
   def is_tt_matrix(self):
+    """Determine whether the object is a `TT-Matrix`.
+
+    :return: `True` if `TT-Matrix`, `False` if `TT-Tensor`
+    :rtype: bool
+    """
     return False
 
   @property
   def raw_tensor_shape(self):
+    """Get the tuple representing the shape of `TT-Tensor`. 
+    In batch case does not include the shape of the batch.
+    
+    :return: `TT-Tensor` shape
+    :rtype: tuple
+    """
     return [c.shape[self.axis_dim] for c in self.tt_cores]
   
   def __getitem__(self, slice_spec):
     """Basic indexing, returns a TT containing the specified element / slice.
+    
     Examples:
       >>> a = ttax.random.tensor(rng, [2, 3, 4])
       >>> a[1, :, :]
@@ -116,26 +182,61 @@ class TT(TTBase):
 
 @flax.struct.dataclass
 class TTMatrix(TTBase):
+  """Represents a `TT-Matrix` object as a list of `TT-cores`.
+  
+  `TT-Matrix` cores take form (r_l, n_l, n_r, r_r), where
+  
+  - r_l, r_r are `TT-ranks` just as for `TT-Tensor`
+  - n_l, n_r make left and right shapes of `TT-Matrix` as rows and cols
+  """
   tt_cores: List[jnp.array]
 
   @property
   def raw_tensor_shape(self):
+    """Get the lists representing left and right shapes of `TT-Matrix`. 
+    In batch case does not include the shape of the batch.
+    
+    For example if `TT-Matrix` cores are (1, 2, 3, 5) (5, 6, 7, 1)
+    returns (2, 6), (3, 7).
+    
+    :return: `TT-Matrix` shapes
+    :rtype: list, list
+    """
     left_shape = [c.shape[self.axis_dim] for c in self.tt_cores]
     right_shape = [c.shape[self.axis_dim + 1] for c in self.tt_cores]
     return left_shape, right_shape
 
   @property
   def shape(self):
+    """Get the tuple representing the shape of underlying dense tensor as matrix. 
+    In batch case includes the shape of the batch.
+    
+    For example if `TT-Matrix` cores are (1, 2, 3, 5) (5, 6, 7, 1)
+    it's shape is (12, 21).
+    
+    :return: `TT-Matrix` shape in dense form with batch shape
+    :rtype: tuple
+    """
     left_shape, right_shape = self.raw_tensor_shape
     no_batch_shape = [np.prod(left_shape), np.prod(right_shape)]
     return tuple(list(self.batch_shape) + no_batch_shape)
 
   @property
   def num_batch_dims(self):
+    """Get the number of batch dimensions for batch of `TT-Matrices.`
+    
+    :return: number of batch dimensions
+    :rtype: int
+    """
     return len(self.tt_cores[0].shape) - 4
 
   @property
   def is_tt_matrix(self):
+    """Determine whether the object is a `TT-Matrix`.
+
+    :return: `True` if `TT-Matrix`, `False` if `TT-Tensor`
+    :rtype: bool
+    """
     return True
   
   def __getitem__(self, slice_spec):
@@ -182,7 +283,7 @@ class BatchIndexing:
 
   def __getitem__(self, indices: list):
     non_none_indices = [idx for idx in indices if idx is not None]
-    if len(non_none_indices) > self._tt.tt_num_batch_dims:
+    if len(non_none_indices) > self._tt.num_batch_dims:
       raise ValueError('Expected %d indices, got %d' % (self._tt.num_batch_dims,
                                                         len(non_none_indices)))
     new_cores = []

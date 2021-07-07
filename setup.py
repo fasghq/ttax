@@ -1,10 +1,10 @@
 from setuptools import setup
 
 setup(name='ttax',
-      version='0.0.1',
+      version='0.0.2',
       description='Tensor Train decomposition on Jax',
       url='https://github.com/fasghq/ttax',
-      author='Alexander Novikov',
+      author='Alexander Novikov and Dmitry Belousov',
       author_email='sasha.v.novikov@gmail.com',
       license='MIT',
       packages=['ttax'],
