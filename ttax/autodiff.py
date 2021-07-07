@@ -5,7 +5,7 @@ from typing import Callable
 
 from ttax import decompositions
 from ttax import riemannian
-
+from ops import flat_inner
 from ttax.base_class import TTTensOrMat
 
 TangentVector = TTTensOrMat
@@ -133,3 +133,32 @@ def hessian_vector_product(func: Callable[[TTTensOrMat], float]) -> Callable[[TT
     # TODO: pass left and right?
     return riemannian.deltas_to_tangent(final_deltas, x)
   return _hess_by_vec
+
+
+def project(what, where):
+  """Project `what` TTs on the tangent space of `where` TT.
+
+  ``project(what, x) = P_x(what)``
+  ``project(batch_what, x) = batch(P_x(batch_what[0]), ..., P_x(batch_what[N]))``
+
+  Complexity:
+    ``O(d r_where^3 m)`` for orthogonalizing the TT-cores of `where`
+    ``+O(batch_size d r_what r_where n (r_what + r_where))``
+
+      - ``d`` is the number of `TT-cores`: ``what.ndims()``
+      - ``r_what`` is the largest `TT-rank` of `what`: ``max(what.tt_rank())``
+      - ``r_where`` is the largest `TT-rank` of `where`
+      - ``n`` is the size of the axis dimension of `what` and `where` e.g.
+        for a tensor of size 4 x 4 x 4, ``n`` is 4;
+        for a 9 x 64 matrix of raw shape (3, 3, 3) x (4, 4, 4) ``n`` is 12
+
+  :type what: `TT-Tensor` or `TT-Matrix`
+  :param what: in the case of batch returns batch with projection of each individual tensor
+  :type where: `TT-Tensor` or `TT-Matrix`
+  :param where: on which tangent space to project
+  :return: `TT-object` with the `TT-ranks` equal ``2 * tangent_space_tens.tt_ranks()``
+  :rtype: `TT-Tensor` or `TT-Matrix`
+  """
+  def _f(x):
+    return flat_inner(what, x)
+  return grad(_f)(where)

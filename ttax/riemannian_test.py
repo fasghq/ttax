@@ -48,16 +48,6 @@ class TTTensorTest(jtu.JaxTestCase):
       projected_normsq_actual = sum([jnp.sum(c[i] * c[i]) for c in deltas])
       self.assertAllClose(projected_normsq_desired[i], projected_normsq_actual)
 
-  def testProject(self):
-    np.random.seed(1)
-    rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
-    dtype = jnp.float32
-    what = random_.tensor(rng1, (4, 4, 4), tt_rank=3, dtype=dtype)
-    where = random_.tensor(rng2, (4, 4, 4), tt_rank=3, dtype=dtype)
-    projected = riemannian.project(what, where)
-    double_projected = riemannian.project(what, where)
-    self.assertAllClose(ops.full(projected), ops.full(double_projected))
-
 
 if __name__ == '__main__':
   absltest.main(testLoader=jtu.JaxTestLoader())

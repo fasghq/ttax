@@ -22,7 +22,6 @@ from ttax.decompositions import round
 from ttax.decompositions import orthogonalize
 
 from ttax.riemannian import tangent_to_deltas
-from ttax.riemannian import project
 
 from ttax import random_ as random
 from ttax.random_ import tensor
@@ -34,3 +33,4 @@ from ttax.utils import is_tt_object
 
 from ttax.autodiff import grad
 from ttax.autodiff import hessian_vector_product
+from ttax.autodiff import project
