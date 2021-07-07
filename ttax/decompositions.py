@@ -122,7 +122,6 @@ def round(tt, max_tt_rank=None, epsilon=None):
     return TT(tt_cores)
 
 
-@tt_vmap(1)
 def orthogonalize(tt, left_to_right=True):
   """Orthogonalize `TT-cores` of a `TT-object`.
   
