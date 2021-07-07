@@ -5,7 +5,8 @@ from typing import Callable
 
 from ttax import decompositions
 from ttax import riemannian
-from ops import flat_inner
+from ttax import ops
+
 from ttax.base_class import TTTensOrMat
 
 TangentVector = TTTensOrMat
@@ -160,5 +161,5 @@ def project(what, where):
   :rtype: `TT-Tensor` or `TT-Matrix`
   """
   def _f(x):
-    return flat_inner(what, x)
+    return ops.flat_inner(what, x)
   return grad(_f)(where)
