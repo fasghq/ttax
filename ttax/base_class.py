@@ -145,7 +145,7 @@ class TT(TTBase):
     :return: TT-Tensor description
     :rtype: string
     """
-    if tt.num_batch_dims == 0:
+    if self.num_batch_dims == 0:
       s = "TT-Tensor of shape {0} and TT-ranks {1}"
       s = s.format(self.shape, self.tt_ranks)
     else:
@@ -258,7 +258,7 @@ class TTMatrix(TTBase):
     :return: TT-Matrix description
     :rtype: string
     """
-    if tt.num_batch_dims == 0:
+    if self.num_batch_dims == 0:
       s = "TT-Matrix of shape {0} and TT-ranks {1}"
       s = s.format(self.raw_tensor_shape, self.tt_ranks)
     else:
