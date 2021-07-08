@@ -147,11 +147,11 @@ class TT(TTBase):
     """
     if tt.num_batch_dims == 0:
       s = "TT-Tensor of shape {0} and TT-ranks {1}"
-      s = s.format(tt.shape, tt.tt_ranks)
+      s = s.format(self.shape, self.tt_ranks)
     else:
       s = "Batch of {0} TT-Tensors of shape {1} and TT-ranks {2}"
-      s = s.format(tt.batch_shape, tt.raw_tensor_shape, tt.tt_ranks)
-    s += " with {0} elements.".format(tt.dtype)
+      s = s.format(self.batch_shape, self.raw_tensor_shape, self.tt_ranks)
+    s += " with {0} elements.".format(self.dtype)
     return s
   
   def __getitem__(self, slice_spec):
@@ -260,11 +260,11 @@ class TTMatrix(TTBase):
     """
     if tt.num_batch_dims == 0:
       s = "TT-Matrix of shape {0} and TT-ranks {1}"
-      s = s.format(tt.raw_tensor_shape, tt.tt_ranks)
+      s = s.format(self.raw_tensor_shape, self.tt_ranks)
     else:
       s = "Batch of {0} TT-Matrices of shape {1} and TT-ranks {2}"
-      s = s.format(tt.batch_shape, tt.raw_tensor_shape, tt.tt_ranks)
-    s += " with {0} elements.".format(tt.dtype)
+      s = s.format(self.batch_shape, self.raw_tensor_shape, self.tt_ranks)
+    s += " with {0} elements.".format(self.dtype)
     return s
   
   def __getitem__(self, slice_spec):
