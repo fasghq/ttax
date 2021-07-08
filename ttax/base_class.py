@@ -140,6 +140,20 @@ class TT(TTBase):
     """
     return [c.shape[self.axis_dim] for c in self.tt_cores]
   
+  def __str__(self):
+    """Creates a string describing TT-Tensor.
+    :return: TT-Tensor description
+    :rtype: string
+    """
+    if tt.num_batch_dims == 0:
+      s = "TT-Tensor of shape {0} and TT-ranks {1}"
+      s = s.format(tt.shape, tt.tt_ranks)
+    else:
+      s = "Batch of {0} TT-Tensors of shape {1} and TT-ranks {2}"
+      s = s.format(tt.batch_shape, tt.raw_tensor_shape, tt.tt_ranks)
+    s += " with {0} elements.".format(tt.dtype)
+    return s
+  
   def __getitem__(self, slice_spec):
     """Basic indexing, returns a TT containing the specified element / slice.
     
@@ -238,6 +252,20 @@ class TTMatrix(TTBase):
     :rtype: bool
     """
     return True
+  
+  def __str__(self):
+    """Creates a string describing TT-Matrix.
+    :return: TT-Matrix description
+    :rtype: string
+    """
+    if tt.num_batch_dims == 0:
+      s = "TT-Matrix of shape {0} and TT-ranks {1}"
+      s = s.format(tt.raw_tensor_shape, tt.tt_ranks)
+    else:
+      s = "Batch of {0} TT-Matrices of shape {1} and TT-ranks {2}"
+      s = s.format(tt.batch_shape, tt.raw_tensor_shape, tt.tt_ranks)
+    s += " with {0} elements.".format(tt.dtype)
+    return s
   
   def __getitem__(self, slice_spec):
     """Basic indexing, returns a TTMatrix containing the specified element / slice."""
