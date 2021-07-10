@@ -88,6 +88,14 @@ class TTBase:
     """
     return BatchIndexing(self)
 
+  def block_until_ready(self):
+    """Apply `block_until_ready()` method to TT-object.
+    Blocks it until the result has been computed.
+    """
+    for core in self.tt_cores:
+      core.block_until_ready()
+    return self
+
 
 
 @flax.struct.dataclass
