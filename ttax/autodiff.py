@@ -124,8 +124,8 @@ def hessian_vector_product(func: Callable[[TTTensOrMat], float]) -> Callable[[TT
                                                       deltas_outer)
       # TODO: support runtime checks
 
-      vector_projected = riemannian.project(vector, x)
-      vec_deltas = riemannian.tangent_space_to_deltas(vector_projected)
+      vector_projected = project(vector, x)
+      vec_deltas = riemannian.tangent_to_deltas(vector_projected)
       products = [jnp.sum(a * b) for a, b in zip(cores_grad, vec_deltas)]
       return sum(products)
 
