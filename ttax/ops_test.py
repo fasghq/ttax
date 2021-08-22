@@ -275,6 +275,23 @@ class TTMatrixTest(jtu.JaxTestCase):
     self.assertAllClose(res_actual1, res_desired, rtol=1e-5)
     self.assertAllClose(res_actual2, res_desired, rtol=1e-5)
 
+  def testSub(self):
+    # Subtract two TT-matrices.
+    rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
+    dtype = jnp.float32
+    left_shape = (2, 3, 4)
+    right_shape = (4, 4, 4)
+    tt_a = random_.matrix(rng1, (left_shape, right_shape), tt_rank=3,
+                          dtype=dtype)
+    tt_b = random_.matrix(rng2, (left_shape, right_shape), tt_rank=[1, 4, 3, 1],
+                          dtype=dtype)
+
+    res_actual1 = ops.full(ops.sub(tt_a, tt_b))
+    res_actual2 = ops.full(tt_a - tt_b)
+    res_desired = ops.full(tt_a) - ops.full(tt_b)
+    self.assertAllClose(res_actual1, res_desired, rtol=1e-5)
+    self.assertAllClose(res_actual2, res_desired, rtol=1e-5)
+
   def testAddSameBatchSize(self):
     # Add two batches of TT-matrices.
     rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
