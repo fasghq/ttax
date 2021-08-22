@@ -383,3 +383,22 @@ def _mul_by_scalar(tt, c):
     return TTMatrix(cores)
   else:
     return TT(cores)
+
+
+def transpose(tt):
+  """Transpose a TT-matrix or a batch of TT-matrices.
+
+  :type tt:   `TT-Matrix` object containing TT-matrix
+  :param tt:  TT-matrix
+  :return:    `TT-Matrix` object containing TT-matrix
+  :rtype:     `TT-Matrix` object containing TT-matrix
+  :raises [ValueError]: if the argument is not a TT-matrix
+  """
+  if not isinstance(tt, TTMatrix) or not tt.is_tt_matrix:
+    raise ValueError('The argument should be a TT-matrix.')
+
+  transposed_tt_cores = [
+    jnp.transpose(tt.tt_cores[core_idx], (0, 2, 1, 3)) for core_idx in range(tt.ndim)
+  ]
+
+  return TT(transposed_tt_cores)
