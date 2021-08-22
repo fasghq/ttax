@@ -282,6 +282,21 @@ def _add_matrix_cores(tt_a, tt_b):
   return tt_cores
 
 
+def sub(tt_a, tt_b):
+  """Returns a `TT-object` corresponding to elementwise subtraction `tt_a - tt_b`.
+    The shapes of `tt_a` and `tt_b` should coincide.
+
+    :type tt_a: `TT-Tensor` or `TT-Matrix`
+    :param tt_a: first argument
+    :type tt_b: `TT-Tensor` or `TT-Matrix`
+    :param tt_b: second argument
+    :rtype: `TT-Tensor` or `TT-Matrix`
+    :return: `tt_a - tt_b`
+    :raises [ValueError]: if the arguments shapes do not coincide
+    """
+  return add(tt_a, multiply(tt_b, -1))
+
+
 def are_shapes_equal(tt_a, tt_b):
   """Returns the result of equality check of 2 tensors' shapes: 
   `True` if shapes are equal and `False` otherwise.

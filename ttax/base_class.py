@@ -23,6 +23,16 @@ class TTBase:
     from ttax import ops
     return ops.add(self, other)
 
+  def __neg__(self):
+    # We can't import ops in the beginning since it creates cyclic dependencies.
+    from ttax import ops
+    return ops.multiply(self, -1)
+
+  def __sub__(self, other):
+    # We can't import ops in the beginning since it creates cyclic dependencies.
+    from ttax import ops
+    return ops.sub(self, other)
+
   def __rmul__(self, other):
     # We can't import ops in the beginning since it creates cyclic dependencies.
     from ttax import ops

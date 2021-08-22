@@ -92,6 +92,20 @@ class TTTensorTest(jtu.JaxTestCase):
     self.assertAllClose(res_actual1, res_desired)
     self.assertAllClose(res_actual2, res_desired)
 
+  def testSub(self):
+    # Subtract two TT-tensors.
+    rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
+    dtype = jnp.float32
+    tt_a = random_.tensor(rng1, (2, 1, 3, 4), tt_rank=2, dtype=dtype)
+    tt_b = random_.tensor(rng2, (2, 1, 3, 4), tt_rank=[1, 2, 4, 3, 1],
+                          dtype=dtype)
+
+    res_actual1 = ops.full(ops.sub(tt_a, tt_b))
+    res_actual2 = ops.full(tt_a - tt_b)
+    res_desired = ops.full(tt_a) - ops.full(tt_b)
+    self.assertAllClose(res_actual1, res_desired)
+    self.assertAllClose(res_actual2, res_desired)
+
   def testAddSameBatchSize(self):
     # Add two batches of TT-tensors.
     rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
