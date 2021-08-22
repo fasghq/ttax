@@ -226,6 +226,18 @@ class TTMatrixTest(jtu.JaxTestCase):
     self.assertAllClose(res_actual1, res_desired, rtol=1e-4)
     self.assertAllClose(res_actual2, res_desired, rtol=1e-4)
 
+  def testMatrixTensorMatmul(self):
+    rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
+    dtype = jnp.float32
+    N_shape = (2, 3, 4)
+    M_shape = (4, 4, 4)
+    tt_operator = random_.matrix(rng1, (M_shape, N_shape), tt_rank=3,
+                          dtype=dtype)
+    tt_tensor = random_.tensor(rng2, N_shape, tt_rank=[1, 4, 3, 1],
+                          dtype=dtype)
+    target_shape = ops.matrix_tensor_matmul(tt_operator, tt_tensor).shape
+    self.assertEqual(M_shape, target_shape)
+
   def testMultiplyBatch(self):
     # Elementwise multiply two batches of TT-matrices.
     rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))

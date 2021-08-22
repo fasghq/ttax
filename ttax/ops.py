@@ -167,6 +167,30 @@ def flat_inner(a, b):
   return res
 
 
+def matrix_tensor_matmul(A, x):
+  """Returns matrix multiplication of given TT-matrix and TT-tensor
+  if A: R^{n1 x ... nd} --> R^{m1 x ... md} — tensor operator, and x \in R^{n1 x ... nd},
+  then matrix_tensor_matmul returns A(x) \in R^{m1 x ... md}.
+  Corresponding modes of A and x should coincide.
+
+      :type A:  `TT-Matrix`
+      :param A: `TT-Matrix` represents a tensor operator
+      :type x:  `TT`
+      :param x: `TT-Tensor`
+      :rerurn:  `TT-Tensor` A(x) is target space of operator A
+      :rtype:   `TT-Tensor`
+      :raises [ValueError]: if the arguments corresponding modes do not coincide
+    """
+
+  tt_einsum = TTEinsum(
+    inputs=[['a', 'ij', 'b'], ['c', 'j', 'd']],
+    output=['ac', 'i', 'bd'],
+    how_to_apply='independent'
+  )
+  func = to_function(tt_einsum)
+  return TT(unwrap_tt(func(A, x)).tt_cores)
+
+
 def matmul(a, b):
   """Calculate matrix multiplication of given `TT-Matrices` wrapped with `WrappedTT`.
   
