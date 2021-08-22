@@ -368,3 +368,27 @@ def _mul_by_scalar(tt, c):
     return TTMatrix(cores)
   else:
     return TT(cores)
+
+
+def norm(tt, differentiable=False):
+  """Frobenius norm of TT object
+
+  :type tt: `TT` or `TTMatrix`
+  :param tt: TT object (tensor or matrix)
+  :type differentiable: bool
+  :param differentiable: whether to use a differentiable implementation or a fast implementation based on QR decomposition
+  :return: non-negative number which is the Frobenius norm of `tt`
+  :rtype: `float`
+  """
+
+  from ttax.decompositions import orthogonalize
+  if differentiable:
+    tt_einsum = TTEinsum(
+      inputs=[['a', I_OR_IJ, 'b'], ['c', I_OR_IJ, 'd'], ['a', 'c']],
+      output=['b', 'd'],
+      how_to_apply='cumulative')
+    func = to_function(tt_einsum)
+    return jnp.sqrt(jnp.squeeze(func(tt, tt)[-1]))
+  else:
+    orth_tt = orthogonalize(tt)
+    return jnp.linalg.norm(orth_tt.tt_cores[-1])
