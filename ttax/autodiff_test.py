@@ -55,8 +55,8 @@ class AutodiffTest(jtu.JaxTestCase):
       vec = random_.tensor(rng3, shape, dtype=dtype)
       proj_vec = autodiff.project(vec, x)
 
-      func = lambda x: ops.flat_inner(x, ops.matrix_tensor_matmul(A, x))
-      desired = autodiff.project(ops.matrix_tensor_matmul(A_plus_AT, proj_vec), x)
+      func = lambda x: ops.flat_inner(x, ops.tt_matvec(A, x))
+      desired = autodiff.project(ops.tt_matvec(A_plus_AT, proj_vec), x)
       desired = ops.full(desired)
       actual = ops.full(autodiff.hessian_vector_product(func)(x, vec))
       self.assertAllClose(desired, actual, rtol=1e-4)

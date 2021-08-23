@@ -235,7 +235,7 @@ class TTMatrixTest(jtu.JaxTestCase):
                           dtype=dtype)
     tt_tensor = random_.tensor(rng2, N_shape, tt_rank=[1, 4, 3, 1],
                           dtype=dtype)
-    target_shape = ops.matrix_tensor_matmul(tt_operator, tt_tensor).shape
+    target_shape = ops.tt_matvec(tt_operator, tt_tensor).shape
     self.assertEqual(M_shape, target_shape)
 
   def testMultiplyBatch(self):

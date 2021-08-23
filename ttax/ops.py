@@ -167,10 +167,10 @@ def flat_inner(a, b):
   return res
 
 
-def matrix_tensor_matmul(A, x):
-  """Returns matrix multiplication of given TT-matrix and TT-tensor
+def tt_matvec(A, x):
+  """Returns matvec multiplication of given TT-matrix and TT-tensor
   if A: R^{n1 x ... nd} --> R^{m1 x ... md} — tensor operator, and x \in R^{n1 x ... nd},
-  then matrix_tensor_matmul returns A(x) \in R^{m1 x ... md}.
+  then tt_matvec returns A(x) \in R^{m1 x ... md}.
   Corresponding modes of A and x should coincide.
 
       :type A:  `TT-Matrix`
