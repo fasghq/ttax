@@ -354,7 +354,7 @@ def to_tt_tensor(tens, max_tt_rank=10, epsilon=None):
   last_mode = shape[-1]
   core_shape = (ranks[d - 1], last_mode, ranks[d])
   tt_cores.append(jnp.reshape(tens, core_shape))
-  return ttax.TT(tt_cores)
+  return TT(tt_cores)
 
 
 def to_tt_matrix(mat, shape, max_tt_rank=10, epsilon=None):
@@ -443,4 +443,4 @@ def to_tt_matrix(mat, shape, max_tt_rank=10, epsilon=None):
                              shape[1, core_idx], next_rank)
     curr_core = jnp.reshape(curr_core, curr_core_new_shape)
     tt_cores.append(curr_core)
-  return ttax.TTMatrix(tt_cores)
+  return TTMatrix(tt_cores)
