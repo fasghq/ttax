@@ -49,18 +49,31 @@ def matrix(rng, shape, tt_rank=2, batch_shape=None, dtype=jnp.float32):
     
   :param rng: JAX PRNG key
   :type rng: random state is described by two unsigned 32-bit integers
-  :param shape: desired tensor shape
-  :type shape: array
+  :param shape: desired tensor shape. Also supports omitting one of the dimensions
+        matrix(..., shape=((2, 2, 2), None))
+      and
+        matrix(..., shape=(None, (2, 2, 2)))
+      will create an 8-element column/row vector.
+  :type shape: tuple
   :param tt_rank: desired `TT-ranks` of `TT-Matrix`
   :type tt_rank: single number for equal `TT-ranks` or array specifying all `TT-ranks`
   :param batch_shape: desired batch shape of `TT-Matrix`
-  :type batch_shape: array
+  :type batch_shape: tuple
   :param dtype: type of elements in `TT-Matrix`
   :type dtype: `dtype`
   :return: generated `TT-Matrix`
   :rtype: TTMatrix
+  :raises [ValueError]: if shape is (None, None)
   """
-  shape = [np.array(shape[0]), np.array(shape[1])]
+  if shape == (None, None):
+    raise ValueError("At least one of shape elements must not be None")
+  if None in shape:
+    shape = [
+      np.array(shape[0]) if shape[0] is not None else np.ones(len(shape[1]), dtype=int),
+      np.array(shape[1]) if shape[1] is not None else np.ones(len(shape[0]), dtype=int),
+    ]
+  else:
+    shape = [np.array(shape[0]), np.array(shape[1])]
   tt_rank = np.array(tt_rank)
   batch_shape = list(batch_shape) if batch_shape else []
 
