@@ -21,7 +21,7 @@ from ttax.compile import TTEinsum
 from ttax.decompositions import round
 from ttax.decompositions import orthogonalize
 from ttax.decompositions import to_tt_tensor
-drom ttax.decompositions import to_tt_matrix
+from ttax.decompositions import to_tt_matrix
 
 from ttax.riemannian import tangent_to_deltas
 
