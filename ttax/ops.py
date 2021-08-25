@@ -385,6 +385,7 @@ def _mul_by_scalar(tt, c):
     return TT(cores)
 
 
+@tt_vmap()
 def transpose(tt):
   """Transpose a TT-matrix or a batch of TT-matrices.
 
@@ -397,14 +398,7 @@ def transpose(tt):
   if not isinstance(tt, TTMatrix) or not tt.is_tt_matrix:
     raise ValueError('The argument should be a TT-matrix.')
 
-  if tt.num_batch_dims == 0:
-    transposed_tt_cores = [
-      jnp.transpose(tt.tt_cores[core_idx], (0, 2, 1, 3)) for core_idx in range(tt.ndim)
-    ]
-  else:
-    # Batch of TT-matrices
-    transposed_tt_cores = [
-      jnp.transpose(tt.tt_cores[core_idx], (0, 1, 3, 2, 4)) for core_idx in range(tt.ndim)
-    ]
-
+  transposed_tt_cores = [
+    jnp.transpose(tt.tt_cores[core_idx], (0, 2, 1, 3)) for core_idx in range(tt.ndim)
+  ]
   return TTMatrix(transposed_tt_cores)
