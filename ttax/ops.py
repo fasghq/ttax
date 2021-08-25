@@ -383,12 +383,7 @@ def norm(tt, differentiable=False):
 
   from ttax.decompositions import orthogonalize
   if differentiable:
-    tt_einsum = TTEinsum(
-      inputs=[['a', I_OR_IJ, 'b'], ['c', I_OR_IJ, 'd'], ['a', 'c']],
-      output=['b', 'd'],
-      how_to_apply='cumulative')
-    func = to_function(tt_einsum)
-    return jnp.sqrt(jnp.squeeze(func(tt, tt)[-1]))
+    return jnp.sqrt(flat_inner(tt, tt))
   else:
     orth_tt = orthogonalize(tt)
     return jnp.linalg.norm(orth_tt.tt_cores[-1])

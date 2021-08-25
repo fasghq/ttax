@@ -334,6 +334,7 @@ class TTMatrixTest(jtu.JaxTestCase):
     shape = (6, 6, 6, 6)
     tt = random_.tensor(rng, shape)
     self.assertAllClose(ops.norm(tt), ops.norm(tt, True))
+    self.assertAllClose(ops.norm(tt), np.linalg.norm(ops.full(tt)))
 
 if __name__ == '__main__':
   absltest.main(testLoader=jtu.JaxTestLoader())
