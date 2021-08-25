@@ -51,12 +51,12 @@ class AutodiffTest(jtu.JaxTestCase):
       A = random_.matrix(rng1, (shape, shape), dtype=dtype)
       AT = ops.transpose(A)
       A_plus_AT = A + AT
-      x = random_.tensor(rng2, shape, dtype=dtype)
-      vec = random_.tensor(rng3, shape, dtype=dtype)
+      x = random_.matrix(rng2, (shape, None), dtype=dtype)
+      vec = random_.matrix(rng3, (shape, None), dtype=dtype)
       proj_vec = autodiff.project(vec, x)
 
-      func = lambda x: ops.flat_inner(x, ops.tt_matvec(A, x))
-      desired = autodiff.project(ops.tt_matvec(A_plus_AT, proj_vec), x)
+      func = lambda x: ops.flat_inner(x, A @ x)
+      desired = autodiff.project(A_plus_AT @ proj_vec, x)
       desired = ops.full(desired)
       actual = ops.full(autodiff.hessian_vector_product(func)(x, vec))
       self.assertAllClose(desired, actual, rtol=1e-4)
