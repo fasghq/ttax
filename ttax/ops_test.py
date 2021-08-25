@@ -325,9 +325,9 @@ class TTMatrixTest(jtu.JaxTestCase):
     res_actual2 = ops.full(tt * c)
     res_actual3 = ops.full(c * tt)
     res_desired = c * ops.full(tt)
-    self.assertAllClose(res_actual1, res_desired, rtol=1e-4) 
-    self.assertAllClose(res_actual2, res_desired, rtol=1e-4)  
-    self.assertAllClose(res_actual3, res_desired, rtol=1e-4)  
+    self.assertAllClose(res_actual1, res_desired, rtol=1e-3) 
+    self.assertAllClose(res_actual2, res_desired, rtol=1e-3)  
+    self.assertAllClose(res_actual3, res_desired, rtol=1e-3)  
 
 
 if __name__ == '__main__':
