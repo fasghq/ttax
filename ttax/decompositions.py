@@ -139,10 +139,12 @@ def orthogonalize(tt, left_to_right=True):
 
 
 def _orthogonalize_tt_cores_left_to_right(tt):
-  """Orthogonalize TT-cores of a TT-object.
-  Args:
-    tt: TT-tensor or TT-matrix.
-    TT-tensor or TT-matrix.
+  """Orthogonalize `TT-cores` of a `TT-object`.
+
+  :type tt: `TT-tensor` or `TT-matrix`
+  :param tt: `TT-object` which `TT-cores` would be orthogonalized
+  :rtype: `TT-tensor` or `TT-matrix`
+  :return: `TT-object` with orthogonalized `TT-cores`
   """
 
   # Left to right orthogonalization.
@@ -202,11 +204,12 @@ def _orthogonalize_tt_cores_left_to_right(tt):
 
 
 def _orthogonalize_tt_cores_right_to_left(tt):
-  """Orthogonalize TT-cores of a TT-object.
-  Args:
-    tt: TT-tensor or TT-matrix.
-  Returns:
-    TT-tensor or TT-matrix.
+  """Orthogonalize `TT-cores` of a `TT-object`.
+  
+  :type tt: `TT-tensor` or `TT-matrix`
+  :param tt: `TT-object` which `TT-cores` would be orthogonalized
+  :rtype: `TT-tensor` or `TT-matrix`
+  :return: `TT-object` with orthogonalized `TT-cores`
   """
   
   # Right to left orthogonalization.
@@ -264,3 +267,180 @@ def _orthogonalize_tt_cores_right_to_left(tt):
     return TTMatrix(tt_cores)
   else:
     return TT(tt_cores)
+  
+def to_tt_tensor(tens, max_tt_rank=10, epsilon=None):
+  """Converts a given tensor to a `TT-tensor` of the same shape.
+  
+  :type tt: `TT-Tensor` or `TT-Matrix`
+  :param tt: `TT-object` which `TT-cores` would be orthogonalized
+  :param left_to_right: the direction of orthogonalization, `True` for left to right and `False` for right to left
+  :type left_to_right: bool
+  :return: `TT-object` with orthogonalized `TT-cores`
+  :rtype: `TT-Tensor` or `TT-Matrix`
+  
+  :param tens: Tensor to convert to `TT-tensor`
+  :type max_tt_rank: a number or a list of numbers
+  :param max_tt_rank: 
+      
+    - If a number, than defines the maximal `TT-rank` of the result.
+    
+    - If a list of numbers, than `max_tt_rank` length should be d+1
+      (where d is the rank of `tens`) and `max_tt_rank[i]` defines
+      the maximal (i+1)-th `TT-rank` of the result.
+      The following two versions are equivalent
+      
+        - ``max_tt_rank = r``
+        
+      and
+      
+        - ``max_tt_rank = r * np.ones(d-1)``
+        
+  :type epsilon: a floating point number or None
+  :param epsilon:
+  
+    - If the `TT-ranks` are not restricted (`max_tt_rank=np.inf`), then
+      the result would be guarantied to be `epsilon` close to `tens`
+      in terms of relative Frobenius error:
+      
+        ``||res - tens||_F / ||tens||_F <= epsilon``
+        
+    - If the `TT-ranks` are restricted, providing a loose `epsilon` may
+      reduce the TT-ranks of the result.
+      E.g.
+      
+        ``to_tt_tensor(tens, max_tt_rank=100, epsilon=0.9)``
+        
+      will probably return you a `TT-tensor` with `TT-ranks` close to 1, not 100.
+      
+  :rtype: `TT`
+  :return: `TT-object` containing a `TT-tensor`
+  Raises:
+    ValueError if the rank (number of dimensions) of the input tensor is
+    not defined, if `max_tt_rank` is less than 0, if `max_tt_rank` is not a number
+    and not a vector of length d + 1 where d is the number of dimensions (rank)
+    of the input tensor, if `epsilon` is less than 0.
+  """
+  shape = tens.shape
+  d = len(tens.shape)
+  max_tt_rank = np.array(max_tt_rank).astype(np.int32)
+  if np.any(max_tt_rank < 1):
+    raise ValueError('Maximum TT-rank should be greater or equal to 1.')
+  if epsilon is not None and epsilon < 0:
+    raise ValueError('Epsilon should be non-negative.')
+  if max_tt_rank.size == 1:
+    max_tt_rank = (max_tt_rank * np.ones(d+1)).astype(np.int32)
+  elif max_tt_rank.size != d + 1:
+    raise ValueError('max_tt_rank should be a number or a vector of size '
+                     '(d+1) where d is the number of dimensions (rank) of '
+                     'the tensor.')
+  ranks = [1] * (d + 1)
+  tt_cores = []
+  for core_idx in range(d - 1):
+    curr_mode = shape[core_idx]
+    rows = ranks[core_idx] * curr_mode
+    tens = jnp.reshape(tens, [rows, -1])
+    columns = tens.shape[1]
+    u, s, v = jnp.linalg.svd(tens, full_matrices=False)
+    if max_tt_rank[core_idx + 1] == 1:
+      ranks[core_idx + 1] = 1
+    else:
+      ranks[core_idx + 1] = min(max_tt_rank[core_idx + 1], rows, columns)
+    u = u[:, 0:ranks[core_idx + 1]]
+    s = s[0:ranks[core_idx + 1]]
+    v = v[0:ranks[core_idx + 1], :]
+    core_shape = (ranks[core_idx], curr_mode, ranks[core_idx + 1])
+    tt_cores.append(jnp.reshape(u, core_shape))
+    tens = jnp.matmul(jnp.diag(s), v)
+  last_mode = shape[-1]
+  core_shape = (ranks[d - 1], last_mode, ranks[d])
+  tt_cores.append(jnp.reshape(tens, core_shape))
+  return TT(tt_cores)
+
+
+def to_tt_matrix(mat, shape, max_tt_rank=10, epsilon=None):
+  """Converts a given matrix or vector to a `TT-matrix`.
+  The matrix dimensions should factorize into d numbers.
+  If e.g. the dimensions are prime numbers, it's usually better to
+  pad the matrix with zeros until the dimensions factorize into
+  (ideally) 3-8 numbers.
+
+  :param mat: two dimensional tensor (a matrix).
+  :type shape: two dimensional array (np.array or list of lists)
+  :param shape: Represents the tensor shape of the matrix.
+      
+    - E.g. for a (a1 * a2 * a3) x (b1 * b2 * b3) matrix `shape` should be
+      ((a1, a2, a3), (b1, b2, b3))
+      
+    - `shape[0]`` and `shape[1]`` should have the same length.
+    
+    -  For vectors you may use ((a1, a2, a3), (1, 1, 1)) or, equivalently,
+       ((a1, a2, a3), None)
+  
+  :type max_tt_rank: a number or a list of numbers
+  :param max_tt_rank:
+  
+    - If a number, than defines the maximal `TT-rank` of the result.
+      
+    - If a list of numbers, than `max_tt_rank` length should be d+1
+      (where d is the length of `shape[0]`) and `max_tt_rank[i]` defines
+      the maximal (i+1)-th `TT-rank` of the result.
+      The following two versions are equivalent
+      
+        - ``max_tt_rank = r``
+      
+      and
+        
+        - ``max_tt_rank = r * np.ones(d-1)``
+        
+  :type epsilon: a floating point number or None
+  :param epsilon:
+  
+    - If the `TT-ranks` are not restricted (`max_tt_rank=np.inf`), then
+      the result would be guarantied to be `epsilon` close to `mat`
+      in terms of relative Frobenius error:
+      
+        ``||res - mat||_F / ||mat||_F <= epsilon``
+        
+    - If the `TT-ranks` are restricted, providing a loose `epsilon` may reduce
+      the `TT-ranks` of the result.
+      E.g.
+      
+        ``to_tt_matrix(mat, shape, max_tt_rank=100, epsilon=0.9)``
+      
+      will probably return you a `TT-matrix` with `TT-ranks` close to 1, not 100.
+     
+  :rtype: `TTMatrix`
+  :return: `TT-object` containing a `TT-matrix`
+  Raises:
+    ValueError if `max_tt_rank` is less than 0, if `max_tt_rank` is not a number and
+    not a vector of length d + 1 where d is the number of dimensions (rank) of
+    the input tensor, if `epsilon` is less than 0.
+  """
+  shape = list(shape)
+  # In case shape represents a vector, e.g. [None, [2, 2, 2]]
+  if shape[0] is None:
+    shape[0] = np.ones(len(shape[1])).astype(int)
+  # In case shape represents a vector, e.g. [[2, 2, 2], None]
+  if shape[1] is None:
+    shape[1] = np.ones(len(shape[0])).astype(int)
+    
+  shape = np.array(shape)
+  tens = jnp.reshape(mat, shape.flatten())
+  d = len(shape[0])
+  # transpose_idx = 0, d, 1, d+1 ...
+  transpose_idx = np.arange(2 * d).reshape(2, d).T.flatten()
+  transpose_idx = transpose_idx.astype(int)
+  tens = jnp.transpose(tens, transpose_idx)
+  new_shape = jnp.prod(shape, axis=0)
+  tens = jnp.reshape(tens, new_shape)
+  tt_tens = to_tt_tensor(tens, max_tt_rank, epsilon)
+  tt_cores = []
+  for core_idx in range(d):
+    curr_core = tt_tens.tt_cores[core_idx]
+    curr_rank = tt_tens.tt_ranks[core_idx]
+    next_rank = tt_tens.tt_ranks[core_idx + 1]
+    curr_core_new_shape = (curr_rank, shape[0, core_idx],
+                             shape[1, core_idx], next_rank)
+    curr_core = jnp.reshape(curr_core, curr_core_new_shape)
+    tt_cores.append(curr_core)
+  return TTMatrix(tt_cores)

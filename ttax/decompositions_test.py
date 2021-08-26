@@ -70,6 +70,33 @@ class DecompositionsTest(jtu.JaxTestCase):
     truncated_x = u[:, :rank] @ np.diag(s[:rank]) @ v[:rank, :]
     rounded = decompositions.round(tt, 5)
     self.assertAllClose(truncated_x, ops.full(rounded), rtol=1e-5, atol=1e-5)
+    
+  def testTTTensor(self):
+    dtype = jnp.float32
+    shape = (2, 1, 4, 3)
+    np.random.seed(0)
+    tens = np.random.randn(*shape).astype(dtype)
+    tt_tens = decompositions.to_tt_tensor(tens, max_tt_rank=3)
+    self.assertAllClose(ops.full(tt_tens), tens, atol=1e-5, rtol=1e-5)
+    
+  def testTTVector(self):
+    dtype = jnp.float32
+    vec_shape = (2, 1, 4, 3)
+    rows = np.prod(vec_shape)
+    np.random.seed(0)
+    vec = np.random.randn(rows, 1).astype(dtype)
+    tt_vec = decompositions.to_tt_matrix(vec, (vec_shape, None))
+    self.assertAllClose(ops.full(tt_vec), vec, atol=1e-5, rtol=1e-5)
+    
+  def testTTMatrix(self):
+    dtype = jnp.float32
+    inp_shape = (2, 5, 2, 3)
+    out_shape = (3, 3, 2, 3)
+    np.random.seed(0)
+    mat = np.random.randn(np.prod(out_shape), np.prod(inp_shape)).astype(dtype)
+    tt_mat = decompositions.to_tt_matrix(mat, (out_shape, inp_shape),
+                                         max_tt_rank=90)
+    self.assertAllClose(ops.full(tt_mat), mat, atol=1e-5, rtol=1e-5)
 
 
 if __name__ == '__main__':
