@@ -356,10 +356,16 @@ class TTMatrixTest(jtu.JaxTestCase):
     res_actual2 = ops.full(tt * c)
     res_actual3 = ops.full(c * tt)
     res_desired = c * ops.full(tt)
-    self.assertAllClose(res_actual1, res_desired, rtol=1e-4) 
-    self.assertAllClose(res_actual2, res_desired, rtol=1e-4)  
-    self.assertAllClose(res_actual3, res_desired, rtol=1e-4)
+    self.assertAllClose(res_actual1, res_desired, rtol=1e-3)
+    self.assertAllClose(res_actual2, res_desired, rtol=1e-3)
+    self.assertAllClose(res_actual3, res_desired, rtol=1e-3)
 
+  def testNorm(self):
+    rng = jax.random.PRNGKey(0)
+    shape = (6, 6, 6, 6)
+    tt = random_.tensor(rng, shape)
+    self.assertAllClose(ops.norm(tt), ops.norm(tt, True))
+    self.assertAllClose(ops.norm(tt), np.linalg.norm(ops.full(tt)))
 
   def testMatVecConvertion(self):
     # Take common vector, convert it into matrices (by columns and by rows) and then convert it back to vector
