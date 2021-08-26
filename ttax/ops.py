@@ -422,14 +422,14 @@ def transpose(tt):
   return TTMatrix(transposed_tt_cores)
 
 
-def vec_to_mat(tt, by_columns=True):
+def tensor_to_vector(tt, vertical=True):
   """Converts TT-tensor to TT-matrix with column shape equals to I = (1, ..., 1). If by_columns is False,
   then row shape equals to I.
 
     :type tt:         `TT`
     :param tt:        TT-tensor
-    :type by_columns: `bool`
-    :param by_columns: defines, whether tt will be located by columns or by rows
+    :type vertical: `bool`
+    :param vertical: defines, whether tt will be located by columns or by rows
     :return:          `TT-Matrix`
     :rtype:           `TT-Matrix`
     :raises [ValueError]: if the argument is not a TT-tensor
@@ -439,7 +439,7 @@ def vec_to_mat(tt, by_columns=True):
 
   cores = []
   for core in tt.tt_cores:
-    if by_columns:
+    if vertical:
       cores.append(jnp.reshape(core, (core.shape[0], core.shape[1], 1, core.shape[2]), order="F"))
     else:
       cores.append(jnp.reshape(core, (core.shape[0], 1, core.shape[1], core.shape[2]), order="F"))
@@ -447,7 +447,7 @@ def vec_to_mat(tt, by_columns=True):
 
 
 
-def mat_to_vec(tt):
+def vector_to_tensor(tt):
   """Converts TT-matrix to TT-tensor, if matrix has shape N x 1 or 1 x N
 
     :type tt:   `TT-Matrix`

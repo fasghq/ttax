@@ -369,19 +369,19 @@ class TTMatrixTest(jtu.JaxTestCase):
 
   def testMatVecConvertion(self):
     # Take common vector, convert it into matrices (by columns and by rows) and then convert it back to vector
-    #                            ---> Matrix 1 (N x 1) ---
+    #                            ---> Vector 1 (N x 1) ---
     #                         /                             \
-    # Common vector (N,) ---                                   ---> back to Common vector (N,)
+    # Common tensor (N,) ---                                   ---> back to Common tensor (N,)
     #                         \                             /
-    #                            ---> Matrix 2 (1 x N) ---
+    #                            ---> Vector 2 (1 x N) ---
     rng = jax.random.PRNGKey(0)
     shape = (5, 5, 5, 5)
-    common_vec = random_.tensor(rng, shape)
-    mat1 = ops.vec_to_mat(common_vec)
-    mat2 = ops.vec_to_mat(common_vec, False)
-    self.assertAllClose(ops.full(ops.mat_to_vec(mat1)), ops.full(ops.mat_to_vec(mat2)))
-    self.assertAllClose(ops.full(ops.mat_to_vec(mat1)), ops.full(common_vec))
-    self.assertAllClose(ops.full(ops.mat_to_vec(mat2)), ops.full(common_vec))
+    common_tensor = random_.tensor(rng, shape)
+    vec1 = ops.tensor_to_vector(common_tensor)
+    vec2 = ops.tensor_to_vector(common_tensor, False)
+    self.assertAllClose(ops.full(ops.vector_to_tensor(vec1)), ops.full(ops.vector_to_tensor(vec2)))
+    self.assertAllClose(ops.full(ops.vector_to_tensor(vec1)), ops.full(common_tensor))
+    self.assertAllClose(ops.full(ops.vector_to_tensor(vec2)), ops.full(common_tensor))
 
 
 if __name__ == '__main__':
