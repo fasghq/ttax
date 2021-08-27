@@ -282,6 +282,21 @@ def _add_matrix_cores(tt_a, tt_b):
   return tt_cores
 
 
+def sub(tt_a, tt_b):
+  """Returns a `TT-object` corresponding to elementwise subtraction `tt_a - tt_b`.
+    The shapes of `tt_a` and `tt_b` should coincide.
+
+    :type tt_a: `TT-Tensor` or `TT-Matrix`
+    :param tt_a: first argument
+    :type tt_b: `TT-Tensor` or `TT-Matrix`
+    :param tt_b: second argument
+    :rtype: `TT-Tensor` or `TT-Matrix`
+    :return: `tt_a - tt_b`
+    :raises [ValueError]: if the arguments shapes do not coincide
+    """
+  return add(tt_a, multiply(tt_b, -1))
+
+
 def are_shapes_equal(tt_a, tt_b):
   """Returns the result of equality check of 2 tensors' shapes: 
   `True` if shapes are equal and `False` otherwise.
@@ -387,3 +402,69 @@ def norm(tt, differentiable=False):
   else:
     orth_tt = orthogonalize(tt)
     return jnp.linalg.norm(orth_tt.tt_cores[-1])
+
+@tt_vmap()
+def transpose(tt):
+  """Transpose a TT-matrix or a batch of TT-matrices.
+
+  :type tt:   `TT-Matrix` object containing TT-matrix or batch of TT-matrices
+  :param tt:  TT-matrix or batch of TT-matrices
+  :return:    `TT-Matrix` object containing TT-matrix or batch of TT-matrices
+  :rtype:     `TT-Matrix` object containing TT-matrix or batch of TT-matrices
+  :raises [ValueError]: if the argument is not a TT-matrix
+  """
+  if not isinstance(tt, TTMatrix) or not tt.is_tt_matrix:
+    raise ValueError('The argument should be a TT-matrix.')
+
+  transposed_tt_cores = [
+    jnp.transpose(tt.tt_cores[core_idx], (0, 2, 1, 3)) for core_idx in range(tt.ndim)
+  ]
+  return TTMatrix(transposed_tt_cores)
+
+
+def tensor_to_vector(tt, vertical=True):
+  """Converts TT-tensor to TT-matrix with column shape equals to I = (1, ..., 1). If by_columns is False,
+  then row shape equals to I.
+
+    :type tt:         `TT`
+    :param tt:        TT-tensor
+    :type vertical: `bool`
+    :param vertical: defines, whether tt will be located by columns or by rows
+    :return:          `TT-Matrix`
+    :rtype:           `TT-Matrix`
+    :raises [ValueError]: if the argument is not a TT-tensor
+  """
+  if not isinstance(tt, TT):
+    raise ValueError('The argument should be a TT-tensor, not TT-matrix.')
+
+  cores = []
+  for core in tt.tt_cores:
+    if vertical:
+      cores.append(jnp.reshape(core, (core.shape[0], core.shape[1], 1, core.shape[2]), order="F"))
+    else:
+      cores.append(jnp.reshape(core, (core.shape[0], 1, core.shape[1], core.shape[2]), order="F"))
+  return TTMatrix(cores)
+
+
+
+def vector_to_tensor(tt):
+  """Converts TT-matrix to TT-tensor, if matrix has shape N x 1 or 1 x N
+
+    :type tt:   `TT-Matrix`
+    :param tt:  TT-matrix
+    :return:    `TT`
+    :rtype:     `TT`
+    :raises [ValueError]: if the argument is not a TT-matrix, or if matrix has wrong shape
+  """
+  if not isinstance(tt, TTMatrix) or not tt.is_tt_matrix:
+    raise ValueError('The argument should be a TT-matrix')
+  if tt.shape[0] != 1 and tt.shape[1] != 1:
+    raise ValueError('At least one of matrix dimensions should be equal to one')
+
+  cores = []
+  for core in tt.tt_cores:
+    if tt.shape[0] == 1:
+      cores.append(jnp.squeeze(core, 1))
+    else:
+      cores.append(jnp.squeeze(core, 2))
+  return TT(cores)

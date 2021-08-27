@@ -120,16 +120,15 @@ def hessian_vector_product(func: Callable[[TTTensOrMat], float]) -> Callable[[TT
         x_projection = riemannian.deltas_to_tangent(deltas_inner, x)
         return func(x_projection)
 
-      function_value, cores_grad = jax.value_and_grad(augmented_inner_func,
-                                                      deltas_outer)
+      function_value, cores_grad = jax.value_and_grad(augmented_inner_func)(deltas_outer)
       # TODO: support runtime checks
 
-      vector_projected = riemannian.project(vector, x)
-      vec_deltas = riemannian.tangent_space_to_deltas(vector_projected)
+      vector_projected = project(vector, x)
+      vec_deltas = riemannian.tangent_to_deltas(vector_projected)
       products = [jnp.sum(a * b) for a, b in zip(cores_grad, vec_deltas)]
       return sum(products)
 
-    _, second_cores_grad = jax.value_and_grad(augmented_outer_func, deltas)
+    _, second_cores_grad = jax.value_and_grad(augmented_outer_func)(deltas)
     final_deltas = _enforce_gauge_conditions(second_cores_grad, left)
     # TODO: pass left and right?
     return riemannian.deltas_to_tangent(final_deltas, x)

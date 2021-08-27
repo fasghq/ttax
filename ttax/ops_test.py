@@ -92,6 +92,20 @@ class TTTensorTest(jtu.JaxTestCase):
     self.assertAllClose(res_actual1, res_desired)
     self.assertAllClose(res_actual2, res_desired)
 
+  def testSub(self):
+    # Subtract two TT-tensors.
+    rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
+    dtype = jnp.float32
+    tt_a = random_.tensor(rng1, (2, 1, 3, 4), tt_rank=2, dtype=dtype)
+    tt_b = random_.tensor(rng2, (2, 1, 3, 4), tt_rank=[1, 2, 4, 3, 1],
+                          dtype=dtype)
+
+    res_actual1 = ops.full(ops.sub(tt_a, tt_b))
+    res_actual2 = ops.full(tt_a - tt_b)
+    res_desired = ops.full(tt_a) - ops.full(tt_b)
+    self.assertAllClose(res_actual1, res_desired)
+    self.assertAllClose(res_actual2, res_desired)
+
   def testAddSameBatchSize(self):
     # Add two batches of TT-tensors.
     rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
@@ -261,6 +275,23 @@ class TTMatrixTest(jtu.JaxTestCase):
     self.assertAllClose(res_actual1, res_desired, rtol=1e-5)
     self.assertAllClose(res_actual2, res_desired, rtol=1e-5)
 
+  def testSub(self):
+    # Subtract two TT-matrices.
+    rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
+    dtype = jnp.float32
+    left_shape = (2, 3, 4)
+    right_shape = (4, 4, 4)
+    tt_a = random_.matrix(rng1, (left_shape, right_shape), tt_rank=3,
+                          dtype=dtype)
+    tt_b = random_.matrix(rng2, (left_shape, right_shape), tt_rank=[1, 4, 3, 1],
+                          dtype=dtype)
+
+    res_actual1 = ops.full(ops.sub(tt_a, tt_b))
+    res_actual2 = ops.full(tt_a - tt_b)
+    res_desired = ops.full(tt_a) - ops.full(tt_b)
+    self.assertAllClose(res_actual1, res_desired, rtol=1e-5)
+    self.assertAllClose(res_actual2, res_desired, rtol=1e-5)
+
   def testAddSameBatchSize(self):
     # Add two batches of TT-matrices.
     rng1, rng2 = jax.random.split(jax.random.PRNGKey(0))
@@ -325,9 +356,9 @@ class TTMatrixTest(jtu.JaxTestCase):
     res_actual2 = ops.full(tt * c)
     res_actual3 = ops.full(c * tt)
     res_desired = c * ops.full(tt)
-    self.assertAllClose(res_actual1, res_desired, rtol=1e-3) 
-    self.assertAllClose(res_actual2, res_desired, rtol=1e-3)  
-    self.assertAllClose(res_actual3, res_desired, rtol=1e-3)  
+    self.assertAllClose(res_actual1, res_desired, rtol=1e-3)
+    self.assertAllClose(res_actual2, res_desired, rtol=1e-3)
+    self.assertAllClose(res_actual3, res_desired, rtol=1e-3)
 
   def testNorm(self):
     rng = jax.random.PRNGKey(0)
@@ -335,6 +366,23 @@ class TTMatrixTest(jtu.JaxTestCase):
     tt = random_.tensor(rng, shape)
     self.assertAllClose(ops.norm(tt), ops.norm(tt, True))
     self.assertAllClose(ops.norm(tt), np.linalg.norm(ops.full(tt)))
+
+  def testMatVecConvertion(self):
+    # Take common vector, convert it into matrices (by columns and by rows) and then convert it back to vector
+    #                            ---> Vector 1 (N x 1) ---
+    #                         /                             \
+    # Common tensor (N,) ---                                   ---> back to Common tensor (N,)
+    #                         \                             /
+    #                            ---> Vector 2 (1 x N) ---
+    rng = jax.random.PRNGKey(0)
+    shape = (5, 5, 5, 5)
+    common_tensor = random_.tensor(rng, shape)
+    vec1 = ops.tensor_to_vector(common_tensor)
+    vec2 = ops.tensor_to_vector(common_tensor, False)
+    self.assertAllClose(ops.full(ops.vector_to_tensor(vec1)), ops.full(ops.vector_to_tensor(vec2)))
+    self.assertAllClose(ops.full(ops.vector_to_tensor(vec1)), ops.full(common_tensor))
+    self.assertAllClose(ops.full(ops.vector_to_tensor(vec2)), ops.full(common_tensor))
+
 
 if __name__ == '__main__':
   absltest.main(testLoader=jtu.JaxTestLoader())
